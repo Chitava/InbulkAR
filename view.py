@@ -65,17 +65,17 @@ def Start():
                 for widgets in frame_2.winfo_children():
                     widgets.destroy()
                 val = salary[name]
+                sal = round((float(val[1]) + float(val[4]) - float(avan)), 2)
+                controller.Write_salary_worker(name, sal)
                 res_lbl = customtkinter.CTkLabel(frame_2,
                                                  text=f"Отработано {val[0]} дней\n Дней с переработкой {val[2]}\n "
                                                       f"Часов переработки {val[3]}\n Зарплата {val[1]}\n "
                                                       f"Зарплата за переработку {val[4]}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=20)
                 fin_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Итого с учетом аванса: {round((float(val[1]) + float(val[4]) - float(avan)), 2)}",
+                                                 text=f"Итого с учетом аванса: {sal}",
                                                  font=customtkinter.CTkFont(family="Arial", size=18,
                                                                             weight="bold")).pack(pady=20)
-
-
 
         for widgets in frame_2.winfo_children():
             widgets.destroy()
@@ -290,7 +290,7 @@ def Start():
                                           hover_color=("gray70", "gray30"),
                                           image=exit_image, anchor="w", command=sys.exit)
     exit_button.grid(row=8, column=0, sticky="ew")
-    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.00',
+    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.50',
                                       font=customtkinter.CTkFont(size=12))
     label_tm.pack(side='right')
     forms_with_date.mainloop()

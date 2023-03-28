@@ -81,8 +81,9 @@ def Read_salary_workers(date_now):
         cursor.close()
         return result
     except:
-        return 1
         cursor.close()
+        return 0
+
 
 def Update_salary_workers(name, salary):
     try:

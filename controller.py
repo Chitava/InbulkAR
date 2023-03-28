@@ -129,12 +129,14 @@ def Create_salary():
                     res.append(round(elab_time, 2))
                     res.append(round(sal_elabor, 2))
                 salary[name[0]] = res
-    return salary
+    sorted_salary = dict(sorted(salary.items()))
+    return sorted_salary
 
 
 def Write_salary_worker(name, salary):
+    salary_workers = []
     salary_workers = db.Read_salary_workers(view.db_date)
-    if salary_workers == 1 or len(salary_workers)==0:
+    if salary_workers == 0 or len(salary_workers)==0:
         db.Create_table_salarys()
         db.Add_salary_worker(name, salary)
     else:
@@ -142,8 +144,10 @@ def Write_salary_worker(name, salary):
             if name == item[0]:
                 db.Update_salary_workers(name,salary)
                 break
-    if name not in salary_workers:
-        db.Add_salary_worker(name, salary)
+        count = 0
+        if name not in item:
+            db.Add_salary_worker(name, salary)
+            count += 1
 
 
 def Read_last_month_salary(name):
@@ -168,6 +172,7 @@ def Read_last_month_salary(name):
                         return item[1]*(-1)
                     else:
                         return item[1]
+
 
 def Print_all(data, avans):
     date_now = view.db_date.split()
@@ -198,6 +203,8 @@ def Print_all(data, avans):
         file.write("******************************************************************\n")
     file.close()
     os.startfile("temp.txt", "print")
+
+
 
 def Save_to_excel(salarys, avans):
     date_now = view.db_date.split()
@@ -234,7 +241,7 @@ def Save_to_excel(salarys, avans):
         values.append(val[3])
         values.append(val[1])
         values.append(val[4])
-        values.append(avans)
+        values.append(float(avans))
         for item in last:
             if keys == item[0]:
                 values.append(item[1])
