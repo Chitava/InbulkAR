@@ -20,7 +20,7 @@ def Workers():
 def Create_db():
     file = fd.askopenfilename()
     wb = load_workbook(file)
-    sheet = wb.get_sheet_by_name('Page1')
+    sheet = wb.get_sheet_by_name('Page 1')
     # df = pd.DataFrame(sheet.values)
     ar = {}  # общий массив данных
     result = []
@@ -28,7 +28,8 @@ def Create_db():
     # rows = sheet.max_row
     # cols = sheet.max_column
     for i in range(6, sheet.max_row + 1):
-        for j in range(1, sheet.max_column):
+        # место 21 sheet.max_column
+        for j in range(1, 21):
             data = sheet.cell(row=i, column=j).value
             if data == '' or data is None:
                 continue
@@ -95,6 +96,7 @@ def Create_salary():
     salary = {}
     work_days = db.Select_work_days(view.db_date)
     all_workers = db.Read_workers()
+    print(work_days)
     for name in all_workers:
         for day in work_days:
             temporery = []
@@ -109,7 +111,7 @@ def Create_salary():
                     wage = 0
                     elabor = 0
                     res =[]
-                    if temp_days[i] != '--,--,--':
+                    if (temp_days[i] != '--,--,--' and len(temp_days[i])>2):
                         times = temp_days[i].split(",")
                         if times[2] != '--':
                             work_day += 1
@@ -153,6 +155,7 @@ def Write_salary_worker(name, salary):
 def Read_last_month_salary(name):
     last_month = []
     date_now = view.db_date.split()
+
     if date_now[0] == '01':
         last_month.append(12)
         last_month.append(int(date_now[1])-1)
@@ -162,8 +165,7 @@ def Read_last_month_salary(name):
         last_month.append(date_now[1])
         last_month = " ".join(last_month)
         last_month_salarys = db.Read_salary_workers(last_month)
-
-        if last_month_salarys == 1:
+        if last_month_salarys == 1 or last_month_salarys == 0:
             return 0
         else:
             for item in last_month_salarys:
