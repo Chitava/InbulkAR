@@ -30,6 +30,22 @@ def Input_workdays(name, res):
             cursor.close()
 
 
+def Input_workdays_one_worker(name_db, name, res):
+    res=";".join(res)
+    try:
+        con = sqlite3.connect("database/inbulk.db")
+        cursor = con.cursor()
+        querry = f"""INSERT INTO '{name_db}' (name, data) VALUES (?, ?)"""
+        param =(name, res)
+        cursor.execute(querry, param)
+        con.commit()
+        cursor.close()
+    except sqlite3.Error as error:
+        view.Messagebox("Внимание Input", error)
+        cursor.close()
+
+
+
 def Update_workdays(name, res):
     for key, value in res.items():
         value = ";".join(value)
@@ -44,6 +60,22 @@ def Update_workdays(name, res):
         except sqlite3.Error as error:
             view.Messagebox("Внимание Update", error)
             cursor.close()
+
+
+def Update_workdays_one_worker(name_db, name, res):
+    res = ";".join(res)
+    try:
+        con = sqlite3.connect("database/inbulk.db")
+        cursor = con.cursor()
+        querry = f"""UPDATE '{name_db}' SET data = ? where name = ?"""
+        param = (res, name)
+        cursor.execute(querry, param)
+        con.commit()
+        cursor.close()
+    except sqlite3.Error as error:
+        view.Messagebox("Внимание Update", error)
+        cursor.close()
+
 
 def Create_table_workers():
     con = sqlite3.connect("database/inbulk.db")

@@ -127,6 +127,7 @@ def Start():
                                                  font=customtkinter.CTkFont(family="Arial", size=18,
                                                                             weight="bold")).pack(pady=10)
                 full_pay += round((float(val[1]) + float(val[4]) - float(avan)), 2)
+                controller.Write_salary_worker(keys, round(sal-last_month_salary, 2))
             itog_lbl = customtkinter.CTkLabel(frame_2,
                                               text=f"Всего к выдаче: {full_pay}",
                                               font=customtkinter.CTkFont(family="Arial", size=26,

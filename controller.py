@@ -20,7 +20,8 @@ def Workers():
 def Create_db():
     file = fd.askopenfilename()
     wb = load_workbook(file)
-    sheet = wb.get_sheet_by_name('Page 1')
+    # sheet = wb.get_sheet_by_name('Page 1')
+    sheet = wb.worksheets[0]
     # df = pd.DataFrame(sheet.values)
     ar = {}  # общий массив данных
     result = []
@@ -75,7 +76,6 @@ def Insert_db_data():
          for keys, val in ar.items():
              db.Add_worker(keys, 0, 0)
     else:
-        add_workers = []
         for item in ar.keys():
             for val in workers:
                if item in val[0]:
@@ -83,22 +83,34 @@ def Insert_db_data():
             else:
                 add_workers.append(item)
     check_tables = db.Select_work_days(view.db_date)
-    if check_tables == 1:
+    if check_tables == 1 or check_tables == 0:
         db.Create_table_work_day(view.db_date)
         db.Input_workdays(view.db_date, ar)
     else:
         db.Update_workdays(view.db_date, ar)
     if len(add_workers) != 0:
         view.Add_workers_form(add_workers)
+    for keys,val in ar.items():
+        flag = 0
+        for item in check_tables:
+            if keys == item[0]:
+                flag+=1
+                break
+        if flag > 0:
+            db.Update_workdays_one_worker(view.db_date, keys, val)
+        else:
+           db.Input_workdays_one_worker(view.db_date, keys, val)
 
 
 def Create_salary():
     salary = {}
     work_days = db.Select_work_days(view.db_date)
     all_workers = db.Read_workers()
-    print(work_days)
+
     for name in all_workers:
+        print(name[0])
         for day in work_days:
+            print(day[0])
             temporery = []
             if name[0] == day[0]:
                 temp_days = day[1].split(';')
@@ -130,8 +142,29 @@ def Create_salary():
                     res.append(elab_day)
                     res.append(round(elab_time, 2))
                     res.append(round(sal_elabor, 2))
-                salary[name[0]] = res
+
+                    salary[name[0]] = res
+
     sorted_salary = dict(sorted(salary.items()))
+    for key, val in sorted_salary.items():
+        print(key)
+    now = db.Read_salary_workers(view.db_date)
+    # print(sorted_salary)
+    # print(now)
+    # for keys,val in sorted_salary.items():
+    #     flag = 0
+    #     for item in now:
+    #         print(keys)
+    #         print(item)
+    #         if keys == item[0]:
+    #             flag +=1
+    #             break
+    #
+    #     if flag:
+    #         db.Update_salary_workers(keys, (val[1]+val[4]))
+    #     else:
+    #         db.Add_salary_worker(keys, (val[1]+val[4]))
+
     return sorted_salary
 
 
@@ -244,15 +277,19 @@ def Save_to_excel(salarys, avans):
         values.append(val[1])
         values.append(val[4])
         values.append(float(avans))
-        for item in last:
-            if keys == item[0]:
-                values.append(item[1])
-                if item[1] < 0:
-                    app = float(val[1]) + float(val[4]) + float(item[1]) - float(avans)
-                    values.append(round(app, 2))
-                else:
-                    app = float(val[1]) + float(val[4]) + float(item[1]) - float(avans)
-                    values.append(round(app, 2))
+        if last !=0:
+            for item in last:
+                if keys == item[0]:
+                    values.append(item[1])
+                    if item[1] < 0:
+                        app = float(val[1]) + float(val[4]) + float(item[1]) - float(avans)
+                        values.append(round(app, 2))
+                    else:
+                        app = float(val[1]) + float(val[4]) + float(item[1]) - float(avans)
+                        values.append(round(app, 2))
+        else:
+            values.append(0)
+            values.append(float(val[1]) + float(val[4]) - float(avans))
         row+=1
         result.append(values)
     row = 1
