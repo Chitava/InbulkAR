@@ -139,6 +139,15 @@ def Read_workers():
     return result
 
 
+def Read_worker(name):
+    con = sqlite3.connect("database/inbulk.db")
+    cursor = con.cursor()
+    cursor.execute(f"select * from workers where name = '{name}'")
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+
 def Add_worker(name, wagerate, processingrate):
     try:
         con = sqlite3.connect("database/inbulk.db")

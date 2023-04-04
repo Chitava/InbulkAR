@@ -108,9 +108,9 @@ def Create_salary():
     all_workers = db.Read_workers()
 
     for name in all_workers:
-        print(name[0])
+        print(name)
         for day in work_days:
-            print(day[0])
+
             temporery = []
             if name[0] == day[0]:
                 temp_days = day[1].split(';')
@@ -127,15 +127,17 @@ def Create_salary():
                         times = temp_days[i].split(",")
                         if times[2] != '--':
                             work_day += 1
-                            if float(times[2]) <= 9:
-                                wage = ((int(name[1]))/8) * float(times[2])
+
+                            if float(times[2]) < 8:
+                                wage = ((int(name[1]))/8) * (float(times[2]))
+
                             else:
                                 elab_day+=1
                                 wage = int(name[1])
                                 elabor = (float(times[2]) - 9)*(int(name[2]))
                                 elab_time += (float(times[2]) - 9)
                                 sal_elabor += elabor
-                    sal += wage
+                    sal += round(wage)
                     res = []
                     res.append(work_day)
                     res.append(round(sal, 2))
@@ -146,27 +148,52 @@ def Create_salary():
                     salary[name[0]] = res
 
     sorted_salary = dict(sorted(salary.items()))
-    for key, val in sorted_salary.items():
-        print(key)
-    now = db.Read_salary_workers(view.db_date)
-    # print(sorted_salary)
-    # print(now)
-    # for keys,val in sorted_salary.items():
-    #     flag = 0
-    #     for item in now:
-    #         print(keys)
-    #         print(item)
-    #         if keys == item[0]:
-    #             flag +=1
-    #             break
-    #
-    #     if flag:
-    #         db.Update_salary_workers(keys, (val[1]+val[4]))
-    #     else:
-    #         db.Add_salary_worker(keys, (val[1]+val[4]))
-
+    for item in work_days:
+        names = []
+        flag = 0
+        # for key, val in sorted_salary.items():
+        if item[0] not in sorted_salary.keys():
+            names.append(item[0])
+            view.Add_workers_form(names)
+    # sorted_salary = Create_salary()
+    # sorted_salary = dict(sorted(salary.items()))
     return sorted_salary
 
+def Create_salary_for_one(data):
+    salary = {}
+    wag = db.Read_worker(data[0])
+    temp_days = data[1].split(';')
+    work_day = 0
+    sal = 0
+    elab_day = 0
+    elab_time = 0
+    sal_elabor = 0
+    for i in range(len(temp_days)):
+        wage = 0
+        elabor = 0
+        res =[]
+        if (temp_days[i] != '--,--,--' and len(temp_days[i])>2):
+            times = temp_days[i].split(",")
+            if times[2] != '--':
+                work_day += 1
+                if round(float(times[2])) <= 9:
+                    wage = ((int(wag[0][1]))/8) * float(times[2])
+                else:
+                    elab_day+=1
+                    wage = int(wag[0][1])
+                    elabor = (round(float(times[2])) - 9)*(int(wag[0][2]))
+                    elab_time += (float(times[2]) - 9)
+                    sal_elabor += elabor
+        sal += wage
+        res = []
+        res.append(work_day)
+        res.append(round(sal, 2))
+        res.append(elab_day)
+        res.append(round(elab_time, 2))
+        res.append(round(sal_elabor, 2))
+        salary[data[0]] = res
+
+    return salary
 
 def Write_salary_worker(name, salary):
     salary_workers = []

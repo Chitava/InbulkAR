@@ -65,6 +65,7 @@ def Start():
                 for widgets in frame_2.winfo_children():
                     widgets.destroy()
                 val = salary[name]
+                print(val)
                 sal = round((float(val[1]) + float(val[4]) - float(avan)), 2)
                 controller.Write_salary_worker(name, sal)
                 res_lbl = customtkinter.CTkLabel(frame_2,
@@ -338,3 +339,5 @@ def Messagebox(title, text):
     lable.pack(pady=20)
     close_button = customtkinter.CTkButton(app, text="Закрыть", command=app.destroy).pack(pady=20)
     app.mainloop()
+
+
