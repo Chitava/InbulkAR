@@ -16,6 +16,9 @@ def Workers():
     return workers
 
 
+def Set_date():
+    return 0
+
 def Create_db():
     file = fd.askopenfilename()
     wb = load_workbook(file)
@@ -23,8 +26,8 @@ def Create_db():
     ar = {}  # общий массив данных
     result = []
     temp = []
-    for i in range(6, sheet.max_row + 1):
-        for j in range(2, 21):
+    for i in range(1, sheet.max_row + 1):
+        for j in range(2, 20):
             data = sheet.cell(row=i, column=j).value
             if (data == '' or data is None or data == '\n' or 'parsec' in data or '/' in data):
                 continue
@@ -32,7 +35,7 @@ def Create_db():
                 temp.append('0,0,0')
             else:
                 temp.append(data.replace("\n", ', ').replace(':', '.').replace(' ', ''))
-        if i%2 == 0:
+        if i%2 != 0:
             continue
         else:
             if len(temp)>0:
@@ -42,13 +45,17 @@ def Create_db():
         item[0] = item[0].replace(',', ' ')
         for i in range(1, len(item)):
             item[i] = (item[i].split(',')).pop(2).replace('--', '0')
-        if len(item) < 32:
-            for i in range(len(item), 32):
-                item.append('0')
+
         key = item[0]
         item.pop(0)
+        for i in range(len(item)):
+            if len(item[i]) == 0:
+                item.pop(i)
+                item.insert(i, 0)
         ar[key] = item
-    return ar
+        sort = dict(sorted(ar.items()))
+
+    return sort
 
 
 def Insert_db_data():
@@ -80,7 +87,7 @@ def Insert_db_data():
         for item in ar:
             flag = 0
             for val in check_tables:
-                if item[0] in val[0]:
+                if item[0] == val[0]:
                     flag+=1
                     break
             if flag > 0:
@@ -88,7 +95,7 @@ def Insert_db_data():
             else:
                 db.Input_new_workdays(view.db_date, item)
 
-def Create_salary():
+def Create_salary(halth):
     salary = {}
     work_days = db.Select_work_days(view.db_date)
     all_workers = db.Read_workers()
@@ -107,14 +114,14 @@ def Create_salary():
                     res =[]
                     if float(day[i]) ==0:
                         wage = 0
-                    elif float(day[i]) > 9.10:
+                    elif float(day[i]) > 9:
                         elabor = (float(day[i]) - 9) * float(name[2])
                         wage = name[1]
                         work_day += 1
                         elab_day += 1
                         elab_time += (float(day[i]) - 9)
                         sal_elabor+= (float(day[i]) - 9)*name[2]
-                    elif float(day[i]) <= 9.10:
+                    elif float(day[i]) <= 9:
                         wage = (name[1]/8)*(float(day[i])-1)
                         work_day+=1
                     sal += round(wage, 2)
@@ -205,7 +212,7 @@ def Read_last_month_salary(name):
                         return item[1]
 
 
-def Print_all(data, avans):
+def Print_all(data):
     date_now = view.db_date.split()
     last_month = []
     if date_now[0] == '01':
@@ -224,20 +231,20 @@ def Print_all(data, avans):
             if keys == item[0]:
                 if item[1] < 0:
                     avan=item[1]*(-1)
-        file.write(f"Долг за прошлый месяц: {avan}\n")
+        file.write(f"Долг за прошлый месяц: {0}\n")
         file.write(f"Отработано: - {val[2]} дней\n")
         file.write(f"Заработал: {val[1]} р.\n")
-        file.write(f"Аванс: {avans} р.\n ")
+        file.write(f"Аванс: {0} р.\n ")
         file.write(f"Часов переработки: {val[3]}\n")
         file.write(f"Заработал за перерработку: {val[4]} р.\n")
-        file.write(f"Итого за месяц - {round(float(val[2])+float(val[4])-float(avans)-float(avan), 2)} р.\n\n")
+        file.write(f"Итого за месяц - {round(float(val[2])+float(val[4]), 2)} р.\n\n")
         file.write("******************************************************************\n")
     file.close()
     os.startfile("temp.txt", "print")
 
 
 
-def Save_to_excel(salarys, avans):
+def Save_to_excel(salarys):
     date_now = view.db_date.split()
     last_month = []
 
@@ -272,16 +279,16 @@ def Save_to_excel(salarys, avans):
         values.append(val[3])
         values.append(val[1])
         values.append(val[4])
-        values.append(float(avans))
+        values.append(0)
         if last !=0:
             for item in last:
                 if keys == item[0]:
                     values.append(item[1])
                     if item[1] < 0:
-                        app = float(val[1]) + float(val[4]) + float(item[1]) - float(avans)
+                        app = float(val[1]) + float(val[4]) + float(item[1])
                         values.append(round(app, 2))
                     else:
-                        app = float(val[1]) + float(val[4]) + float(item[1]) - float(avans)
+                        app = float(val[1]) + float(val[4]) + float(item[1])
                         values.append(round(app, 2))
         else:
             values.append(0)

@@ -7,54 +7,44 @@ import db
 import os
 import xlwt
 import xlsxwriter
-import controller
 
-view.db_date ='04 2023'
-def Insert_db_data():
-    ar = controller.Create_db()
-    db.Create_table_workers()
-    workers = db.Read_workers()
-    db.Create_new_table_work_day(view.db_date)
-    work_days = db.Select_work_days(view.db_date)
-    add_workers = []
-    for key, val in ar.items():
-        print(key)
-        print(val)
-    for key, val in ar.items():
-        result = []
-        result.append(key)
-        result = []
-        result.append(key)
-        for item in val:
-            temp = item.split(',')
-            if len(temp) != 3:
-                result.append('0.0')
+def Create_db():
+    file = fd.askopenfilename()
+    wb = load_workbook(file)
+    sheet = wb.worksheets[0]
+    ar = {}  # общий массив данных
+    result = []
+    temp = []
+    for i in range(1, sheet.max_row + 1):
+        for j in range(2, 20):
+            data = sheet.cell(row=i, column=j).value
+
+            if (data == '' or data is None or data == '\n' or 'parsec' in data or '/' in data):
+                continue
+            if data == '--\n--\n--':
+                temp.append('0,0,0')
             else:
-                if (temp[2] == '--' or temp[2] == ''):
-                    result.append('0.0')
-                else:
-                    result.append(float(temp[2]))
-        flag = 0
-        work_days = db.Select_work_days(view.db_date)
-        for i in range(len(work_days)):
-            if key in work_days[i][0]:
-                flag+=1
-                break
-        if flag:
-            db.Update_new_workdays(view.db_date, result)
+                temp.append(data.replace("\n", ', ').replace(':', '.').replace(' ', ''))
+        if i%2 == 0:
+            continue
         else:
-            db.Input_new_workdays(view.db_date, result)
-        flag = 0
-        for i in range(len(workers)):
-            if key in workers[i][0]:
-                flag+=1
-                break
-        if flag:
-            view.Add_workers_form(key)
+            if len(temp)>0:
+                result.append(list(temp))
+        temp.clear()
+    for item in result:
+        print(item)
+    for item in result:
+        item[0] = item[0].replace(',', ' ')
+
+        # for i in range(1, len(item)):
+        #     item[i] = (item[i].split(',')).pop(2).replace('--', '0')
+        if len(item) < 32:
+            for i in range(len(item), 32):
+                item.append('0')
+        key = item[0]
+        item.pop(0)
+        ar[key] = item
+    return ar
 
 
-
-
-
-
-Insert_db_data()
+Create_db()

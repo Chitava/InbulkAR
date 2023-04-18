@@ -10,6 +10,7 @@ from functools import partial
 from tkinter import filedialog as fd
 
 db_date = ''
+period = ''
 def Start_form():
     start_windows = customtkinter.CTk()
     start_windows.title("Расчет зарплаты INBULK")
@@ -27,6 +28,7 @@ def Start_form():
     logo_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "name.png")), size=(150, 26))
     exit_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "exit.png")),
                                         size=(18, 20))
+
     exit_button = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
                                           text="Выход",
                                           fg_color="transparent", text_color=("gray10", "gray90"),
@@ -59,7 +61,7 @@ def Start():
             avan = avans.get()
             if avan =="":
                 avan = 0
-            salary = controller.Create_salary()
+            salary = controller.Create_salary_for_one(db_date)
             if name in salary.keys():
                 for widgets in frame_2.winfo_children():
                     widgets.destroy()
@@ -97,21 +99,17 @@ def Start():
 
 
     def Salary_for_all():
-        def Presalary():
+        def Presalary(halth):
             salary = {}
-            avan = avans.get()
-            if avan =="":
-                avan = 0
+
             for widgets in frame_2.winfo_children():
                 widgets.destroy()
-            salary = controller.Create_salary()
+            salary = controller.Create_salary(halth)
             db.Create_table_salarys()
             full_pay = 0
+            sorted(salary.items())
             for keys, val in salary.items():
-                print(keys)
-                print(val)
-                sal = round((float(val[1]) + float(val[4]) - float(avan)), 2)
-                print((sal))
+                sal = round((float(val[1]) + float(val[4])), 2)
                 last_month_salary = controller.Read_last_month_salary(keys)
                 controller.Write_salary_worker(keys,0)#round(sal-last_month_salary, 2)
                 name_lbl = customtkinter.CTkLabel(frame_2,
@@ -123,49 +121,48 @@ def Start():
                                                       f"Зарплата за переработку {val[4]}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=20)
                 fin_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Итого с учетом аванса: {sal} минус {last_month_salary} за пошлый месяц",
+                                                 text=f"Итого : {sal} минус {last_month_salary} за пошлый месяц",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=10)
                 itog_lbl = customtkinter.CTkLabel(frame_2,
                                                  text=f"Итого за месяц:\n {round(sal-last_month_salary, 2)} р.",
                                                  font=customtkinter.CTkFont(family="Arial", size=18,
                                                                             weight="bold")).pack(pady=10)
-                full_pay += round((float(val[1]) + float(val[4]) - float(avan)), 2)
+                full_pay += round((float(val[1]) + float(val[4])), 2)
                 controller.Write_salary_worker(keys, round(sal-last_month_salary, 2))
             itog_lbl = customtkinter.CTkLabel(frame_2,
-                                              text=f"Всего к выдаче: {full_pay}",
+                                              text=f"Всего к выдаче: {round(full_pay, 2)}",
                                               font=customtkinter.CTkFont(family="Arial", size=26,
                                                                          weight="bold")).pack(pady=20)
             print_button = customtkinter.CTkButton(frame_2, text="Распечатать",
-                                                   command=partial(controller.Print_all, salary, avan))
+                                                   command=partial(controller.Print_all, salary))
             print_button.pack(pady=20)
             excel_button = customtkinter.CTkButton(frame_2, text="Сохранить в Excel",
-                                                   command=partial(controller.Save_to_excel, salary, avan))
+                                                   command=partial(controller.Save_to_excel, salary))
             excel_button.pack(pady=20)
 
 
         for widgets in frame_2.winfo_children():
             widgets.destroy()
-        avans = customtkinter.CTkEntry(master=frame_2, placeholder_text="Аванс")
-        avans.pack(padx=20)
-        presalar_button = customtkinter.CTkButton(frame_2, text="Расчитать всех", command=partial(Presalary))
-        presalar_button.pack(pady=20)
+        first_half = customtkinter.CTkButton(frame_2, text="Первая половина", command=partial(Presalary, 1))
+        first_half.pack(pady=20)
+        second_half = customtkinter.CTkButton(frame_2, text="Вторая половина", command=partial(Presalary, 2))
+        second_half.pack(pady=20)
 
     def Insert_db_date():
         def Insert_date():
             global db_date
+            global period
             db_date = cal.get_date()
+            period = db_date[:2]
             for i in range(len(db_date)):
                 if db_date[i] == '.':
                     db_date = db_date[i+1:].replace('.', ' ')
                     break
-            for widgets in frame_2.winfo_children():
-                widgets.destroy()
-            controller.Insert_db_data()
+
+
 
         for widgets in frame_2.winfo_children():
             widgets.destroy()
-
-
         lable_set = customtkinter.CTkLabel(frame_2, text="Установка даты для работы с базой INBULK",
                                            font=customtkinter.CTkFont(family="Arial", size=18, weight="bold"))
         lable_set.pack(pady=20)
@@ -229,7 +226,6 @@ def Start():
     forms_with_date = customtkinter.CTk()
     forms_with_date.title("Расчет зарплаты INBULK")
     forms_with_date.geometry("700x450")
-
     frame_1 = customtkinter.CTkFrame(master=forms_with_date, width=10)
     frame_1.pack(fill='both', side="left", anchor="nw", padx=5, pady=5)
     frame_2 = customtkinter.CTkScrollableFrame(master=forms_with_date, width=200, height=200)
@@ -247,40 +243,48 @@ def Start():
                                              size=(18, 20))
     exit_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "exit.png")),
                                            size=(18, 20))
+    calendar_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "calendar.png")),
+                                            size=(18, 20))
     navigation_frame_label = customtkinter.CTkLabel(frame_1, text="", image=logo_image,
                                                          compound="left",
                                                          font=customtkinter.CTkFont(size=15, weight="bold"))
     navigation_frame_label.grid(row=0, column=0, padx=23, pady=20)
+    set_data = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
+                                      text="Установить дату",
+                                      fg_color="transparent", text_color=("gray10", "gray90"),
+                                      hover_color=("gray70", "gray30"),
+                                      image=calendar_image, anchor="w", command=Insert_db_date)
+    set_data.grid(row=1, column=0, sticky="ew")
     open_db = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
                                          text="Записать новые данные",
                                          fg_color="transparent", text_color=("gray10", "gray90"),
                                          hover_color=("gray70", "gray30"),
-                                         image=open_db_image, anchor="w", command=Insert_db_date)
-    open_db.grid(row=1, column=0, sticky="ew")
+                                         image=open_db_image, anchor="w", command=controller.Insert_db_data)
+    open_db.grid(row=2, column=0, sticky="ew")
     pay_button = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
                                           text="Расчет сотрудника",
                                           fg_color="transparent", text_color=("gray10", "gray90"),
                                           hover_color=("gray70", "gray30"),
                                           image=home_image, anchor="w", command=Salary_for_one)
-    pay_button.grid(row=2, column=0, sticky="ew")
+    pay_button.grid(row=3, column=0, sticky="ew")
     pays_button = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
                                                   text="Расчет всех",
                                                   fg_color="transparent", text_color=("gray10", "gray90"),
                                                   hover_color=("gray70", "gray30"),
                                                   image=home_image, anchor="w", command=Salary_for_all)
-    pays_button.grid(row=3, column=0, sticky="ew")
+    pays_button.grid(row=4, column=0, sticky="ew")
     add_button = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
                                           text="Добавление сотрудника",
                                           fg_color="transparent", text_color=("gray10", "gray90"),
                                           hover_color=("gray70", "gray30"),
                                           image=add_user_image, anchor="w")
-    add_button.grid(row=4, column=0, sticky="ew")
+    add_button.grid(row=5, column=0, sticky="ew")
     edit_button = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
                                                   text="Редактирование сотрудника",
                                                   fg_color="transparent", text_color=("gray10", "gray90"),
                                                   hover_color=("gray70", "gray30"),
                                                   image=edit_user_image, anchor="w", command=Edit_workers)
-    edit_button.grid(row=5, column=0, sticky="ew")
+    edit_button.grid(row=6, column=0, sticky="ew")
 
     exit_button = customtkinter.CTkButton(frame_1, corner_radius=0, height=40, border_spacing=10,
                                           text="Удаление сотрудника",
@@ -294,7 +298,7 @@ def Start():
                                           hover_color=("gray70", "gray30"),
                                           image=exit_image, anchor="w", command=sys.exit)
     exit_button.grid(row=8, column=0, sticky="ew")
-    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.50',
+    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.90',
                                       font=customtkinter.CTkFont(size=12))
     label_tm.pack(side='right')
     forms_with_date.mainloop()
