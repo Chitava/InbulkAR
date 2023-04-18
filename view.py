@@ -52,7 +52,6 @@ def Start_form():
 
 
 def Start():
-
     def Salary_for_one():
         def Presalary(avans):
             salary = {}
@@ -65,7 +64,7 @@ def Start():
                 for widgets in frame_2.winfo_children():
                     widgets.destroy()
                 val = salary[name]
-                print(val)
+
                 sal = round((float(val[1]) + float(val[4]) - float(avan)), 2)
                 controller.Write_salary_worker(name, sal)
                 res_lbl = customtkinter.CTkLabel(frame_2,
@@ -109,9 +108,12 @@ def Start():
             db.Create_table_salarys()
             full_pay = 0
             for keys, val in salary.items():
+                print(keys)
+                print(val)
                 sal = round((float(val[1]) + float(val[4]) - float(avan)), 2)
+                print((sal))
                 last_month_salary = controller.Read_last_month_salary(keys)
-                controller.Write_salary_worker(keys, round(sal-last_month_salary, 2))
+                controller.Write_salary_worker(keys,0)#round(sal-last_month_salary, 2)
                 name_lbl = customtkinter.CTkLabel(frame_2,
                                                  text=keys,
                                                  font=customtkinter.CTkFont(family="Arial", size=24)).pack(pady=5)

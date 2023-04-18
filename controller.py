@@ -8,7 +8,6 @@ import os
 import xlwt
 import xlsxwriter
 
-
 def Workers():
     workers = []
     temp = db.Read_workers()
@@ -20,51 +19,36 @@ def Workers():
 def Create_db():
     file = fd.askopenfilename()
     wb = load_workbook(file)
-    # sheet = wb.get_sheet_by_name('Page 1')
     sheet = wb.worksheets[0]
-    # df = pd.DataFrame(sheet.values)
     ar = {}  # общий массив данных
     result = []
     temp = []
-    # rows = sheet.max_row
-    # cols = sheet.max_column
     for i in range(6, sheet.max_row + 1):
-        # место 21 sheet.max_column
-        for j in range(1, 21):
+        for j in range(2, 21):
             data = sheet.cell(row=i, column=j).value
-            if data == '' or data is None:
+            if (data == '' or data is None or data == '\n' or 'parsec' in data or '/' in data):
                 continue
             if data == '--\n--\n--':
-                temp.append('--,--,--')
+                temp.append('0,0,0')
             else:
                 temp.append(data.replace("\n", ', ').replace(':', '.').replace(' ', ''))
-        if len(temp)>0:
-            result.append(list(temp))
-        temp.clear()
-    for item in result:
-        for val in item:
-            if 'parsec' in val:
-                result.remove(item)
-    for i in range(len(result) - 1):
-        if i % 2 == 0:
-            temp.append(result[i] + result[i + 1])
-    for i in range(len(temp)):
-        if len(temp[i]) == 0:
+        if i%2 == 0:
             continue
         else:
-            temp_data = []
-            keys = temp[i][1].replace(',', ' ')
-            temp[i].pop(0)
-            temp[i].pop(0)
-            for item in temp[i]:
-                temp_data.append(item)
-            if (len(temp_data) < 31):
-                lenth_data = 31 - len(temp_data)
-                for i in range(lenth_data):
-                    temp_data.append('--,--,--')
-            ar[keys] = temp_data
+            if len(temp)>0:
+                result.append(list(temp))
+        temp.clear()
+    for item in result:
+        item[0] = item[0].replace(',', ' ')
+        for i in range(1, len(item)):
+            item[i] = (item[i].split(',')).pop(2).replace('--', '0')
+        if len(item) < 32:
+            for i in range(len(item), 32):
+                item.append('0')
+        key = item[0]
+        item.pop(0)
+        ar[key] = item
     return ar
-
 
 
 def Insert_db_data():
@@ -77,87 +61,72 @@ def Insert_db_data():
              db.Add_worker(keys, 0, 0)
     else:
         for item in ar.keys():
+            flag = 0
             for val in workers:
-               if item in val[0]:
+                if item in val[0]:
+                    flag+=1
                     break
-            else:
+            if flag == 0:
                 add_workers.append(item)
+    if add_workers:
+        view.Add_workers_form(add_workers)
     check_tables = db.Select_work_days(view.db_date)
     if check_tables == 1 or check_tables == 0:
-        db.Create_table_work_day(view.db_date)
-        db.Input_workdays(view.db_date, ar)
+        db.Create_new_table_work_day(view.db_date)
+        for item in list(ar):
+            db.Input_new_workdays(view.db_date, item)
     else:
-        db.Update_workdays(view.db_date, ar)
-    if len(add_workers) != 0:
-        view.Add_workers_form(add_workers)
-    for keys,val in ar.items():
-        flag = 0
-        for item in check_tables:
-            if keys == item[0]:
-                flag+=1
-                break
-        if flag > 0:
-            db.Update_workdays_one_worker(view.db_date, keys, val)
-        else:
-           db.Input_workdays_one_worker(view.db_date, keys, val)
-
+        ar = list(ar.items())
+        for item in ar:
+            flag = 0
+            for val in check_tables:
+                if item[0] in val[0]:
+                    flag+=1
+                    break
+            if flag > 0:
+                db.Update_new_workdays(view.db_date, item)
+            else:
+                db.Input_new_workdays(view.db_date, item)
 
 def Create_salary():
     salary = {}
     work_days = db.Select_work_days(view.db_date)
     all_workers = db.Read_workers()
-
     for name in all_workers:
-        print(name)
         for day in work_days:
-
             temporery = []
             if name[0] == day[0]:
-                temp_days = day[1].split(';')
                 work_day = 0
                 sal = 0
                 elab_day = 0
                 elab_time = 0
                 sal_elabor = 0
-                for i in range(len(temp_days)):
+                for i in range(1, len(day)):
                     wage = 0
                     elabor = 0
                     res =[]
-                    if (temp_days[i] != '--,--,--' and len(temp_days[i])>2):
-                        times = temp_days[i].split(",")
-                        if times[2] != '--':
-                            work_day += 1
-
-                            if float(times[2]) < 8:
-                                wage = ((int(name[1]))/8) * (float(times[2]))
-
-                            else:
-                                elab_day+=1
-                                wage = int(name[1])
-                                elabor = (float(times[2]) - 9)*(int(name[2]))
-                                elab_time += (float(times[2]) - 9)
-                                sal_elabor += elabor
-                    sal += round(wage)
+                    if float(day[i]) ==0:
+                        wage = 0
+                    elif float(day[i]) > 9.10:
+                        elabor = (float(day[i]) - 9) * float(name[2])
+                        wage = name[1]
+                        work_day += 1
+                        elab_day += 1
+                        elab_time += (float(day[i]) - 9)
+                        sal_elabor+= (float(day[i]) - 9)*name[2]
+                    elif float(day[i]) <= 9.10:
+                        wage = (name[1]/8)*(float(day[i])-1)
+                        work_day+=1
+                    sal += round(wage, 2)
                     res = []
                     res.append(work_day)
                     res.append(round(sal, 2))
                     res.append(elab_day)
                     res.append(round(elab_time, 2))
                     res.append(round(sal_elabor, 2))
+                salary[name[0]] = res
+    return salary
 
-                    salary[name[0]] = res
-
-    sorted_salary = dict(sorted(salary.items()))
-    for item in work_days:
-        names = []
-        flag = 0
-        # for key, val in sorted_salary.items():
-        if item[0] not in sorted_salary.keys():
-            names.append(item[0])
-            view.Add_workers_form(names)
-    # sorted_salary = Create_salary()
-    # sorted_salary = dict(sorted(salary.items()))
-    return sorted_salary
 
 def Create_salary_for_one(data):
     salary = {}
