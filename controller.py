@@ -136,6 +136,71 @@ def Create_salary_in_one_month(date1, date2, month):
     return salary
 
 
+def Create_salary_with_last_month(date1, date2, last_month, month):
+    salary = {}
+    now_work_days = db.Select_work_days(month)
+    last_work_days = db.Select_work_days(last_month)
+    all_workers = db.Read_workers()
+    for name in all_workers:
+        work_day = 0
+        sal = 0
+        elab_day = 0
+        elab_time = 0
+        sal_elabor = 0
+        wage = 0
+        elabor = 0
+        res = []
+        for day in last_work_days:
+            temporery = []
+            if name[0] == day[0]:
+                work_day = 0
+                sal = 0
+                elab_day = 0
+                elab_time = 0
+                sal_elabor = 0
+                wage = 0
+                elabor = 0
+                res = []
+                for i in range(int(date1), len(day)):
+                    if float(day[i]) ==0:
+                        wage = 0
+                    elif float(day[i]) > 9:
+                        elabor = (float(day[i]) - 9) * float(name[2])
+                        wage = int(name[1])
+                        work_day += 1
+                        elab_day += 1
+                        elab_time += (float(day[i]) - 9)
+                        sal_elabor+= (float(day[i]) - 9)*name[2]
+                    elif float(day[i]) <= 9:
+                        wage = (int(name[1])/8)*(float(day[i])-1)
+                        work_day+=1
+                    sal += round(wage, 2)
+        for day in now_work_days:
+            if name[0] == day[0]:
+                for i in range(1, int(date2)+1):
+                    if float(day[i]) == 0:
+                        wage = 0
+                    elif float(day[i]) > 9:
+                        elabor = (float(day[i]) - 9) * float(name[2])
+                        wage = name[1]
+                        work_day += 1
+                        elab_day += 1
+                        elab_time += (float(day[i]) - 9)
+                        sal_elabor += (float(day[i]) - 9) * name[2]
+                    elif float(day[i]) <= 9:
+                        wage = (int(name[1])/8) * (float(day[i]) - 1)
+                        work_day += 1
+                    sal += round(wage, 2)
+        res = []
+        res.append(work_day)
+        res.append(round(sal, 2))
+        res.append(elab_day)
+        res.append(round(elab_time, 2))
+        res.append(round(sal_elabor, 2))
+        salary[name[0]] = res
+        Write_salary_worker(name[0], round(sal+sal_elabor, 2), month)
+    return salary
+
 def Create_salary_for_one(data):
     salary = {}
     wag = db.Read_worker(data[0])
@@ -169,8 +234,44 @@ def Create_salary_for_one(data):
         res.append(round(elab_time, 2))
         res.append(round(sal_elabor, 2))
         salary[data[0]] = res
-
     return salary
+
+
+def Create_salary_for_one(data):
+    salary = {}
+    wag = db.Read_worker(data[0])
+    temp_days = data[1].split(';')
+    work_day = 0
+    sal = 0
+    elab_day = 0
+    elab_time = 0
+    sal_elabor = 0
+    for i in range(len(temp_days)):
+        wage = 0
+        elabor = 0
+        res =[]
+        if (temp_days[i] != '--,--,--' and len(temp_days[i])>2):
+            times = temp_days[i].split(",")
+            if times[2] != '--':
+                work_day += 1
+                if round(float(times[2])) <= 9:
+                    wage = ((int(wag[0][1]))/8) * float(times[2])
+                else:
+                    elab_day+=1
+                    wage = int(wag[0][1])
+                    elabor = (round(float(times[2])) - 9)*(int(wag[0][2]))
+                    elab_time += (float(times[2]) - 9)
+                    sal_elabor += elabor
+        sal += wage
+        res = []
+        res.append(work_day)
+        res.append(round(sal, 2))
+        res.append(elab_day)
+        res.append(round(elab_time, 2))
+        res.append(round(sal_elabor, 2))
+        salary[data[0]] = res
+    return salary
+
 
 def Write_salary_worker(name, salary, month):
     salary_workers = []

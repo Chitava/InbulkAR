@@ -123,14 +123,13 @@ def Start():
             for widgets in frame_2.winfo_children():
                 widgets.destroy()
             if date1_for_equels.month < date2_for_equels.month:
-                print('меньше')
+                salary = controller.Create_salary_with_last_month(int(day1), int(day2), date1, date2)
             elif date1_for_equels.month == date2_for_equels.month:
                 salary = controller.Create_salary_in_one_month(int(day1), int(day2), date2)
-
             else:
                 Messagebox("Ошибка",'Выбран не верный диапазон дат')
             full_pay = 0
-            sorted(salary.items())
+            # sorted(salary.items())
             for keys, val in salary.items():
                 sal = round((float(val[1]) + float(val[4])), 2)
                 # controller.Write_salary_worker(keys, sal)#round(sal-last_month_salary, 2)
