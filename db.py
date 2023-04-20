@@ -170,18 +170,18 @@ def Create_table_workers():
     cursor.close()
 
 
-def Create_table_salarys():
+def Create_table_salarys(month):
     con = sqlite3.connect("database/inbulk.db")
     cursor = con.cursor()
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS 'salarys {view.db_date}' (name text PRIMARY KEY, salary FLOAT);")
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS 'salarys {month}' (name text PRIMARY KEY, salary FLOAT);")
     cursor.close()
 
 
-def Add_salary_worker(name, salary):
+def Add_salary_worker(name, salary, month):
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()
-        sql_insert = f"INSERT INTO 'salarys {view.db_date}' (name, salary) VALUES (?, ?);"
+        sql_insert = f"INSERT INTO 'salarys {month}' (name, salary) VALUES (?, ?);"
         param = (name, salary)
         cursor.execute(sql_insert, param)
         con.commit()
@@ -203,11 +203,11 @@ def Read_salary_workers(date_now):
         return 0
 
 
-def Update_salary_workers(name, salary):
+def Update_salary_workers(name, salary, month):
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()
-        querry = f"UPDATE 'salarys {view.db_date}' SET salary = ? where name = ?;"
+        querry = f"UPDATE 'salarys {month}' SET salary = ? where name = ?;"
         param = (salary, name)
         cursor.execute(querry, param)
         con.commit()

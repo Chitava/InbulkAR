@@ -8,6 +8,11 @@ from PIL import Image
 from tkcalendar import Calendar
 from functools import partial
 from tkinter import filedialog as fd
+import tkcalendar
+import datetime
+
+
+
 
 db_date = ''
 period = ''
@@ -99,19 +104,36 @@ def Start():
 
 
     def Salary_for_all():
-        def Presalary(halth):
+        def Presalary(date1, date2):
+            str_date1 = date1.get()
+            str_date2 = date2.get()
+            date1_for_equels = datetime.datetime.strptime(str_date1, '%d-%m-%Y')
+            date2_for_equels = datetime.datetime.strptime(str_date2, '%d-%m-%Y')
+            day1 = str_date1[:2]
+            day2 = str_date2[:2]
+            for i in range(len(str_date1)):
+                if str_date1[i] == '-':
+                    date1 = str_date1[i + 1:].replace('-', ' ')
+                    break
+            for i in range(len(str_date2)):
+                if str_date2[i] == '-':
+                    date2 = str_date2[i + 1:].replace('-', ' ')
+                    break
             salary = {}
-
             for widgets in frame_2.winfo_children():
                 widgets.destroy()
-            salary = controller.Create_salary(halth)
-            db.Create_table_salarys()
+            if date1_for_equels.month < date2_for_equels.month:
+                print('меньше')
+            elif date1_for_equels.month == date2_for_equels.month:
+                salary = controller.Create_salary_in_one_month(int(day1), int(day2), date2)
+
+            else:
+                Messagebox("Ошибка",'Выбран не верный диапазон дат')
             full_pay = 0
             sorted(salary.items())
             for keys, val in salary.items():
                 sal = round((float(val[1]) + float(val[4])), 2)
-                last_month_salary = controller.Read_last_month_salary(keys)
-                controller.Write_salary_worker(keys,0)#round(sal-last_month_salary, 2)
+                # controller.Write_salary_worker(keys, sal)#round(sal-last_month_salary, 2)
                 name_lbl = customtkinter.CTkLabel(frame_2,
                                                  text=keys,
                                                  font=customtkinter.CTkFont(family="Arial", size=24)).pack(pady=5)
@@ -121,14 +143,11 @@ def Start():
                                                       f"Зарплата за переработку {val[4]}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=20)
                 fin_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Итого : {sal} минус {last_month_salary} за пошлый месяц",
+                                                 text=f"Итого за месяц: {sal}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=10)
-                itog_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Итого за месяц:\n {round(sal-last_month_salary, 2)} р.",
-                                                 font=customtkinter.CTkFont(family="Arial", size=18,
-                                                                            weight="bold")).pack(pady=10)
+
                 full_pay += round((float(val[1]) + float(val[4])), 2)
-                controller.Write_salary_worker(keys, round(sal-last_month_salary, 2))
+                # controller.Write_salary_worker(keys, round(sal, 2))
             itog_lbl = customtkinter.CTkLabel(frame_2,
                                               text=f"Всего к выдаче: {round(full_pay, 2)}",
                                               font=customtkinter.CTkFont(family="Arial", size=26,
@@ -137,16 +156,24 @@ def Start():
                                                    command=partial(controller.Print_all, salary))
             print_button.pack(pady=20)
             excel_button = customtkinter.CTkButton(frame_2, text="Сохранить в Excel",
-                                                   command=partial(controller.Save_to_excel, salary))
+                                                   command=partial(controller.Save_to_excel, salary, date2))
             excel_button.pack(pady=20)
 
 
         for widgets in frame_2.winfo_children():
             widgets.destroy()
-        first_half = customtkinter.CTkButton(frame_2, text="Первая половина", command=partial(Presalary, 1))
-        first_half.pack(pady=20)
-        second_half = customtkinter.CTkButton(frame_2, text="Вторая половина", command=partial(Presalary, 2))
-        second_half.pack(pady=20)
+
+        lable_date = customtkinter.CTkLabel(frame_2, text="Выберете диапазон дат для расчета",
+                                            font=customtkinter.CTkFont(family="Arial", size=18, weight="bold"))
+        lable_date.pack(pady=20, expand=True)
+        date1 = tkcalendar.DateEntry(frame_2, locale='ru', date_pattern='dd-MM-yyyy')
+        date1.pack(pady=30, side='left')
+        date2 = tkcalendar.DateEntry(frame_2, locale='ru', date_pattern='dd-MM-yyyy')
+        date2.pack(padx=10, pady=30, side='left')
+        calculate = customtkinter.CTkButton(frame_2, text="Расчитать", command=partial(Presalary, date1, date2))
+        calculate.pack(side='left')
+
+
 
     def Insert_db_date():
         def Insert_date():

@@ -95,9 +95,9 @@ def Insert_db_data():
             else:
                 db.Input_new_workdays(view.db_date, item)
 
-def Create_salary(halth):
+def Create_salary_in_one_month(date1, date2, month):
     salary = {}
-    work_days = db.Select_work_days(view.db_date)
+    work_days = db.Select_work_days(month)
     all_workers = db.Read_workers()
     for name in all_workers:
         for day in work_days:
@@ -108,7 +108,7 @@ def Create_salary(halth):
                 elab_day = 0
                 elab_time = 0
                 sal_elabor = 0
-                for i in range(1, len(day)):
+                for i in range(date1, date2+1):
                     wage = 0
                     elabor = 0
                     res =[]
@@ -132,6 +132,7 @@ def Create_salary(halth):
                     res.append(round(elab_time, 2))
                     res.append(round(sal_elabor, 2))
                 salary[name[0]] = res
+                Write_salary_worker(name[0], round(sal+sal_elabor, 2), month)
     return salary
 
 
@@ -171,21 +172,22 @@ def Create_salary_for_one(data):
 
     return salary
 
-def Write_salary_worker(name, salary):
+def Write_salary_worker(name, salary, month):
     salary_workers = []
-    salary_workers = db.Read_salary_workers(view.db_date)
+    salary_workers = db.Read_salary_workers(month)
     if salary_workers == 0 or len(salary_workers)==0:
-        db.Create_table_salarys()
-        db.Add_salary_worker(name, salary)
+        db.Create_table_salarys(month)
+        db.Add_salary_worker(name, salary, month)
     else:
+        count = 0
         for item in salary_workers:
             if name == item[0]:
-                db.Update_salary_workers(name,salary)
+                db.Update_salary_workers(name, salary, month)
+                count+=1
                 break
-        count = 0
-        if name not in item:
-            db.Add_salary_worker(name, salary)
-            count += 1
+        if count == 0:
+           db.Add_salary_worker(name, salary, month)
+
 
 
 def Read_last_month_salary(name):
@@ -213,17 +215,6 @@ def Read_last_month_salary(name):
 
 
 def Print_all(data):
-    date_now = view.db_date.split()
-    last_month = []
-    if date_now[0] == '01':
-        last_month.append(12)
-        last_month.append(int(date_now[1]) - 1)
-    else:
-        str_date = '0' + str(int(date_now[0]) - 1)
-        last_month.append(str_date)
-        last_month.append(date_now[1])
-        last_month = " ".join(last_month)
-    last = db.Read_salary_workers(last_month)
     for keys, val in data.items():
         file.write(f"{keys}\n\n")
         last_month_salary = 0
@@ -244,30 +235,16 @@ def Print_all(data):
 
 
 
-def Save_to_excel(salarys):
-    date_now = view.db_date.split()
-    last_month = []
-
-    if date_now[0] == '01':
-        last_month.append(12)
-        last_month.append(int(date_now[1]) - 1)
-    else:
-        str_date = '0' + str(int(date_now[0]) - 1)
-        last_month.append(str_date)
-        last_month.append(date_now[1])
-        last_month = " ".join(last_month)
-    last = db.Read_salary_workers(last_month)
-
-    book = xlsxwriter.Workbook(f"Зарплата за {view.db_date}.xlsx")
+def Save_to_excel(salarys, month):
+    book = xlsxwriter.Workbook(f"Зарплата за {month}.xlsx")
     sheet = book.add_worksheet("Зарплата")
     row = 0
     column = 0
     content = ["№", "Имя", "Рабочие дни", "Часы перерработки", "Зарплата за месяц", "Зарплата за переработку", "Аванс",
-               "Долг за прошлый месяц", "Итого на руки"]
+               "Итого на руки"]
     for item in content:
         sheet.write(row, column, item)
         column += 1
-
     row = 1
     column = 0
     result = []
@@ -280,23 +257,9 @@ def Save_to_excel(salarys):
         values.append(val[1])
         values.append(val[4])
         values.append(0)
-        if last !=0:
-            for item in last:
-                if keys == item[0]:
-                    values.append(item[1])
-                    if item[1] < 0:
-                        app = float(val[1]) + float(val[4]) + float(item[1])
-                        values.append(round(app, 2))
-                    else:
-                        app = float(val[1]) + float(val[4]) + float(item[1])
-                        values.append(round(app, 2))
-        else:
-            values.append(0)
-            values.append(float(val[1]) + float(val[4]) - float(avans))
-        row+=1
         result.append(values)
+        row+=1
     row = 1
-
     for item in result:
         column = 0
         for val in item:
@@ -304,33 +267,3 @@ def Save_to_excel(salarys):
             column += 1
         row+=1
     book.close()
-
-
-
-    #         sheet1.write(i+1, 0, i+1)
-    #         sheet1.write(i+1, 1, key)
-    #         sheet1.write(i+1, 2, val[0])
-    #         sheet1.write(i+1, 3, val[3])
-    #         sheet1.write(i+1, 4, val[1])
-    #         sheet1.write(i+1, 5, val[4])
-    #         sheet1.write(i+1, 6, avans)
-    #         sheet1.write(i+1, 7, "Долг за прошлый месяц")
-    #         sheet1.write(i+1, 8, (round(float(val[1])+float(val[4])-float(avans))))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
