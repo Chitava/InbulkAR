@@ -57,13 +57,14 @@ def Create_new_table_work_day(add_date):
         view.Messagebox("Внимание", error)
 
 def Input_new_workdays(name, res):
-        res[1].insert(0,res[0])
+
         try:
             con = sqlite3.connect("database/inbulk.db")
             cursor = con.cursor()
             querry = f"""INSERT INTO '{name}' (name, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', 
-            '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+            '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31') VALUES ('{res[0]}', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
             cursor.execute(querry,res[1])
             con.commit()
             cursor.close()

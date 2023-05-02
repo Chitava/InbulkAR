@@ -52,9 +52,11 @@ def Create_db():
             if len(item[i]) == 0:
                 item.pop(i)
                 item.insert(i, 0)
+        if (len(item) < 31):
+            for i in range(len(item), 31):
+                item.append("0")
         ar[key] = item
         sort = dict(sorted(ar.items()))
-
     return sort
 
 
@@ -358,6 +360,7 @@ def Save_to_excel(salarys, month):
         values.append(val[1])
         values.append(val[4])
         values.append(0)
+        values.append(float(val[1])+float(val[4]))
         result.append(values)
         row+=1
     row = 1
