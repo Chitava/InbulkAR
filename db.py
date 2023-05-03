@@ -89,7 +89,18 @@ def Update_new_workdays(name, res):
             cursor.close()
 
 
-
+def Select_work_days_for_one(name, name_db):
+    try:
+        con = sqlite3.connect("database/inbulk.db")
+        cursor = con.cursor()
+        querry = f"""SELECT * FROM '{name_db}' JOIN workers WHERE workers.name = '{name}'"""
+        cursor.execute(querry)
+        result = cursor.fetchall()
+        cursor.close()
+    except sqlite3.Error as error:
+        view.Messagebox("Внимание Input", error)
+        cursor.close()
+    return result
 
 
 

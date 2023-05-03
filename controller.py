@@ -239,40 +239,40 @@ def Create_salary_for_one(data):
     return salary
 
 
-def Create_salary_for_one(data):
-    salary = {}
-    wag = db.Read_worker(data[0])
-    temp_days = data[1].split(';')
-    work_day = 0
-    sal = 0
-    elab_day = 0
-    elab_time = 0
-    sal_elabor = 0
-    for i in range(len(temp_days)):
-        wage = 0
-        elabor = 0
-        res =[]
-        if (temp_days[i] != '--,--,--' and len(temp_days[i])>2):
-            times = temp_days[i].split(",")
-            if times[2] != '--':
-                work_day += 1
-                if round(float(times[2])) <= 9:
-                    wage = ((int(wag[0][1]))/8) * float(times[2])
-                else:
-                    elab_day+=1
-                    wage = int(wag[0][1])
-                    elabor = (round(float(times[2])) - 9)*(int(wag[0][2]))
-                    elab_time += (float(times[2]) - 9)
-                    sal_elabor += elabor
-        sal += wage
-        res = []
-        res.append(work_day)
-        res.append(round(sal, 2))
-        res.append(elab_day)
-        res.append(round(elab_time, 2))
-        res.append(round(sal_elabor, 2))
-        salary[data[0]] = res
-    return salary
+# def Create_salary_for_one(data):
+#     salary = {}
+#     wag = db.Read_worker(data[0])
+#     temp_days = data[1].split(';')
+#     work_day = 0
+#     sal = 0
+#     elab_day = 0
+#     elab_time = 0
+#     sal_elabor = 0
+#     for i in range(len(temp_days)):
+#         wage = 0
+#         elabor = 0
+#         res =[]
+#         if (temp_days[i] != '--,--,--' and len(temp_days[i])>2):
+#             times = temp_days[i].split(",")
+#             if times[2] != '--':
+#                 work_day += 1
+#                 if round(float(times[2])) <= 9:
+#                     wage = ((int(wag[0][1]))/8) * float(times[2])
+#                 else:
+#                     elab_day+=1
+#                     wage = int(wag[0][1])
+#                     elabor = (round(float(times[2])) - 9)*(int(wag[0][2]))
+#                     elab_time += (float(times[2]) - 9)
+#                     sal_elabor += elabor
+#         sal += wage
+#         res = []
+#         res.append(work_day)
+#         res.append(round(sal, 2))
+#         res.append(elab_day)
+#         res.append(round(elab_time, 2))
+#         res.append(round(sal_elabor, 2))
+#         salary[data[0]] = res
+#     return salary
 
 
 def Write_salary_worker(name, salary, month):
@@ -371,3 +371,90 @@ def Save_to_excel(salarys, month):
             column += 1
         row+=1
     book.close()
+
+
+def Create_salary_in_one_month_for_one(name, date1, date2, month):
+    salary = []
+    work_days = db.Select_work_days_for_one(name, month)
+    wage = work_days[0][33]
+    elabor_wage = work_days[0][34]
+    name = work_days[0][0]
+    salary.append(name)
+    sum_day = 0
+    sum_elabor = 0
+    day = 0
+    elabor_day = 0
+    houer_elabor = 0
+
+    for item in work_days:
+        for i in range(int(date1), int(date2) + 1):
+
+            if float(item[i]) ==0:
+                continue
+            elif float(item[i]) <= 9:
+                houer_wage = wage/8
+                day_wage = (float(item[i])-1)*houer_wage
+                sum_day += day_wage
+                day_wage+=1
+                day+=1
+            else:
+                houer_elabor += (float(item[i]) - 9)
+                elabor = (float(item[i]) - 9)*elabor_wage
+                sum_day+=wage
+                sum_elabor+=elabor
+                sum = elabor+wage
+                elabor_day+=1
+                day+=1
+    salary.append(day)
+    salary.append(sum_day)
+    salary.append(elabor_day)
+    salary.append(houer_elabor)
+    salary.append(sum_elabor)
+    salary.append(sum_day+sum_elabor)
+    return salary
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #
+    #             work_day = 0
+    #             sal = 0
+    #             elab_day = 0
+    #             elab_time = 0
+    #             sal_elabor = 0
+    #             for i in range(date1, date2+1):
+    #                 wage = 0
+    #                 elabor = 0
+    #                 res =[]
+    #                 if float(day[i]) ==0:
+    #                     wage = 0
+    #                 elif float(day[i]) > 9:
+    #                     elabor = (float(day[i]) - 9) * float(name[2])
+    #                     wage = name[1]
+    #                     work_day += 1
+    #                     elab_day += 1
+    #                     elab_time += (float(day[i]) - 9)
+    #                     sal_elabor+= (float(day[i]) - 9)*name[2]
+    #                 elif float(day[i]) <= 9:
+    #                     wage = (name[1]/8)*(float(day[i])-1)
+    #                     work_day+=1
+    #                 sal += round(wage, 2)
+    #                 res = []
+    #                 res.append(work_day)
+    #                 res.append(round(sal, 2))
+    #                 res.append(elab_day)
+    #                 res.append(round(elab_time, 2))
+    #                 res.append(round(sal_elabor, 2))
+    #             salary[name[0]] = res
+    #             Write_salary_worker(name[0], round(sal+sal_elabor, 2), month)
+    # return salary

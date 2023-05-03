@@ -60,29 +60,48 @@ def Start_form():
 
 def Start():
     def Salary_for_one():
-        def Presalary(avans):
+        def Presalary(date1, date2, avans, name):
+            str_date1 = date1.get()
+            str_date2 = date2.get()
+            date1_for_equels = datetime.datetime.strptime(str_date1, '%d-%m-%Y')
+            date2_for_equels = datetime.datetime.strptime(str_date2, '%d-%m-%Y')
+            day1 = str_date1[:2]
+            day2 = str_date2[:2]
+            avans = avans.get()
+            if avans is None or avans == "":
+                avans = 0
+            else:
+                avans = float(avans)
+            name = name.get()
+            for i in range(len(str_date1)):
+                if str_date1[i] == '-':
+                    date1 = str_date1[i + 1:].replace('-', ' ')
+                    break
+            for i in range(len(str_date2)):
+                if str_date2[i] == '-':
+                    date2 = str_date2[i + 1:].replace('-', ' ')
+                    break
             salary = {}
-            name = combobox_var.get()
-            avan = avans.get()
-            if avan =="":
-                avan = 0
-            salary = controller.Create_salary_for_one(db_date)
-            if name in salary.keys():
-                for widgets in frame_2.winfo_children():
-                    widgets.destroy()
-                val = salary[name]
-
-                sal = round((float(val[1]) + float(val[4]) - float(avan)), 2)
-                controller.Write_salary_worker(name, sal)
-                res_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Отработано {val[0]} дней\n Дней с переработкой {val[2]}\n "
-                                                      f"Часов переработки {val[3]}\n Зарплата {val[1]}\n "
-                                                      f"Зарплата за переработку {val[4]}",
+            for widgets in frame_2.winfo_children():
+                widgets.destroy()
+            if date1_for_equels.month < date2_for_equels.month:
+                salary = controller.Create_salary_with_last_month(int(day1), int(day2), date1, date2) #переделать для одного
+            elif date1_for_equels.month == date2_for_equels.month:
+                salary = controller.Create_salary_in_one_month_for_one(name, int(day1), int(day2), date2)
+            else:
+                Messagebox("Ошибка", 'Выбран не верный диапазон дат')
+            name_lbl = customtkinter.CTkLabel(frame_2,
+                                                  text=salary[0],
+                                                  font=customtkinter.CTkFont(family="Arial", size=24)).pack(pady=5)
+            res_lbl = customtkinter.CTkLabel(frame_2,
+                                                 text=f"Отработано {salary[1]} дней\n Дней с переработкой {salary[3]}\n "
+                                                      f"Часов переработки {round(salary[4], 2)}\n Зарплата {round(salary[2], 2)}\n "
+                                                      f"Зарплата за переработку {round(salary[5], 2)}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=20)
-                fin_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Итого с учетом аванса: {sal}",
-                                                 font=customtkinter.CTkFont(family="Arial", size=18,
-                                                                            weight="bold")).pack(pady=20)
+            fin_lbl = customtkinter.CTkLabel(frame_2,
+                                                 text=f"Итого за месяц: {round(salary[6], 2)} минус аванс {avans} на руки {round(float(salary[6])-avans, 2)}",
+                                                 font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=10)
+
 
         for widgets in frame_2.winfo_children():
             widgets.destroy()
@@ -91,16 +110,27 @@ def Start():
         for item in workers:
             worker.append(item[0])
         worker.sort()
-
+        lable_name = customtkinter.CTkLabel(frame_2, text="Выберете сотрудника для расчета",
+                                            font=customtkinter.CTkFont(family="Arial", size=18, weight="bold"))
+        lable_name.pack(pady=20, expand=True)
         combobox_var = customtkinter.StringVar(value=worker[0])  # set initial value
         combobox = customtkinter.CTkComboBox(master=frame_2, width=300,
-                                         values=worker, variable=combobox_var)
+                                             values=worker, variable=combobox_var)
         combobox.pack(padx=20, pady=10)
 
-        avans = customtkinter.CTkEntry(master=frame_2, placeholder_text="Аванс")
-        avans.pack(padx=20)
-        presalar_button = customtkinter.CTkButton(frame_2, text="Расчитать", command=partial(Presalary, avans))
-        presalar_button.pack(pady=20)
+
+        lable_date = customtkinter.CTkLabel(frame_2, text="Выберете диапазон дат для расчета",
+                                            font=customtkinter.CTkFont(family="Arial", size=18, weight="bold"))
+        lable_date.pack(pady=20, expand=True)
+        date1 = tkcalendar.DateEntry(frame_2, locale='ru', date_pattern='dd-MM-yyyy')
+        date1.pack(pady=30, side='left')
+        date2 = tkcalendar.DateEntry(frame_2, locale='ru', date_pattern='dd-MM-yyyy')
+        date2.pack(padx=10, pady=30, side='left')
+        avans = customtkinter.CTkEntry(master=frame_2, placeholder_text="Аванс", width=100)
+        avans.pack(padx=10, pady=30, side='left')
+        presalar_button = customtkinter.CTkButton(frame_2, text="Расчитать", width=20,
+                                                  command=partial(Presalary, date1, date2, avans, combobox_var))
+        presalar_button.pack(padx=10, pady=30, side='left')
 
 
     def Salary_for_all():
@@ -324,7 +354,7 @@ def Start():
                                           hover_color=("gray70", "gray30"),
                                           image=exit_image, anchor="w", command=sys.exit)
     exit_button.grid(row=8, column=0, sticky="ew")
-    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.90',
+    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.96',
                                       font=customtkinter.CTkFont(size=12))
     label_tm.pack(side='right')
     forms_with_date.mainloop()
