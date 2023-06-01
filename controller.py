@@ -98,6 +98,8 @@ def Insert_db_data():
                 db.Input_new_workdays(view.db_date, item)
 
 def Create_salary_in_one_month(date1, date2, month):
+    date1 = int(date1)
+    date2 = int(date2)
     salary = {}
     work_days = db.Select_work_days(month)
     all_workers = db.Read_workers()
@@ -139,6 +141,8 @@ def Create_salary_in_one_month(date1, date2, month):
 
 
 def Create_salary_with_last_month(date1, date2, last_month, month):
+    date1 = int(date1)
+    date2 = int(date2)
     salary = {}
     now_work_days = db.Select_work_days(month)
     last_work_days = db.Select_work_days(last_month)
@@ -204,6 +208,8 @@ def Create_salary_with_last_month(date1, date2, last_month, month):
     return salary
 
 def Create_salary_for_one(data):
+    date1 = int(date1)
+    date2 = int(date2)
     salary = {}
     wag = db.Read_worker(data[0])
     temp_days = data[1].split(';')
