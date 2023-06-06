@@ -28,6 +28,7 @@ def Create_salary_in_one_month(date1, date2, month):
         salary = 0
         elabor_time = datetime.datetime(2000, 1, 1, 0, 0)
         elabor_salary = 0
+        all_elab_time = datetime.datetime(2000, 1, 1, 0, 0)
         wage = item[1]
         elab = item[2]
         houre_wage = wage / 8
@@ -43,10 +44,11 @@ def Create_salary_in_one_month(date1, date2, month):
                 else:
                     salary += wage
                     elab_time = curent_time - work_time
-                    elabor_time += elab_time
+                    all_elab_time += elab_time
                     work_day += 1
-        elab_time = str(elabor_time.time()).replace(':', '.').replace('.00', '')
-        month_salary = salary + round(float(elab_time) * elab, 2)
+        # elab_time = str(elabor_time.time()).replace(':', '.').replace('.00', '')
+        elabor_time = (all_elab_time.day - 1) * 24 + all_elab_time.hour + all_elab_time.minute / 10
+        month_salary = salary + round(float(elabor_time) * elab, 2)
         # print(f"Рабочих дней - {work_day}")
         # print(f"Зарплата - {round(salary, 2)}")
         # print(f"Общее время переработки - {elabor_time.time()}")
@@ -56,19 +58,14 @@ def Create_salary_in_one_month(date1, date2, month):
         controller.Write_salary_worker(item[0], month_salary, month)
 
         result.append(work_day) #Кол-во отработаных дней
-        result.append(elab_time) #Сумма часов переработки
+        result.append(elabor_time) #Сумма часов переработки
         result.append(round(salary, 2)) #Зарплата за отработанные дни
-        result.append(round(float(elab_time) * elab, 2)) #Зарплата за переработку
+        result.append(round(float(elabor_time) * elab, 2)) #Зарплата за переработку
         result.append(round(month_salary, 2)) #Зарплата за месяц
-        print(name)
-        print(result)
         salary_all[name] = result
-    return salary
+    return salary_all
 
-sallary = Create_salary_in_one_month('01', '31', '05 2023')
-for key, val in sallary.items():
-    print(key)
-    print(val)
+
 
 
 

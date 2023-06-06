@@ -89,7 +89,6 @@ def Create_salary_in_one_month(date1, date2, month):
     date2 = int(date2)
     salary_all = {}
     result = []
-    print(result)
     data = db.Select_work_days_join_workers(month)
     for item in data:
         name = str(item[0])
@@ -98,6 +97,7 @@ def Create_salary_in_one_month(date1, date2, month):
         salary = 0
         elabor_time = datetime.datetime(2000, 1, 1, 0, 0)
         elabor_salary = 0
+        all_elab_time = datetime.datetime(2000, 1, 1, 0, 0)
         wage = item[1]
         elab = item[2]
         houre_wage = wage / 8
@@ -113,15 +113,15 @@ def Create_salary_in_one_month(date1, date2, month):
                 else:
                     salary += wage
                     elab_time = curent_time - work_time
-                    elabor_time += elab_time
+                    all_elab_time += elab_time
                     work_day += 1
-        elab_time = str(elabor_time.time()).replace(':', '.').replace('.00', '')
-        month_salary = salary + round(float(elab_time) * elab, 2)
+        elabor_time = (all_elab_time.day - 1) * 24 + all_elab_time.hour + all_elab_time.minute / 10
+        month_salary = salary + round(float(elabor_time) * elab, 2)
         Write_salary_worker(item[0], month_salary, month)
         result.append(work_day) #Кол-во отработаных дней
-        result.append(elab_time) #Сумма часов переработки
+        result.append(elabor_time) #Сумма часов переработки
         result.append(round(salary, 2)) #Зарплата за отработанные дни
-        result.append(round(float(elab_time) * elab, 2)) #Зарплата за переработку
+        result.append(round(float(elabor_time) * elab, 2)) #Зарплата за переработку
         result.append(round(month_salary, 2)) #Зарплата за месяц
         salary_all[name] = result
     return salary_all
