@@ -3,16 +3,6 @@ import customtkinter
 import view
 
 
-# def Create_table_work_day(add_date):
-#     try:
-#         con = sqlite3.connect("database/inbulk.db")
-#         cursor = con.cursor()
-#         q = """CREATE TABLE IF NOT EXISTS "{}" (name TEXT PRIMARY KEY, data TEXT)""".format(add_date)
-#         cursor.execute(q)
-#         cursor.close()
-#     except sqlite3.Error as error:
-#         view.Messagebox("Внимание", error)
-
 def Create_new_table_work_day(add_date):
     try:
         con = sqlite3.connect("database/inbulk.db")
@@ -56,36 +46,34 @@ def Create_new_table_work_day(add_date):
     except sqlite3.Error as error:
         view.Messagebox("Внимание", error)
 
-def Input_new_workdays(name, res):
-
+def Input_new_workdays(name_db, name, val):
         try:
             con = sqlite3.connect("database/inbulk.db")
             cursor = con.cursor()
-            querry = f"""INSERT INTO '{name}' (name, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', 
-            '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31') VALUES ('{res[0]}', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            querry = f"""INSERT INTO '{name_db}' (name, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16',
+            '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31') VALUES ('{name}', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
              ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-
-            cursor.execute(querry,res[1])
+            cursor.execute(querry, val)
             con.commit()
             cursor.close()
         except sqlite3.Error as error:
-            view.Messagebox("Внимание Input", error)
+            # view.Messagebox("Внимание ошибка записи в базу", error)
+            return -1
             cursor.close()
 
 
-def Update_new_workdays(name, res):
-        res[1].append(res[0])
+def Update_new_workdays(name_db, name, val):
         try:
             con = sqlite3.connect("database/inbulk.db")
             cursor = con.cursor()
-            querry = f"""UPDATE '{name}' SET '01' = ?, '02' = ?, '03'= ?, '04'= ?, '05'= ?, '06'= ?, '07' = ?, '08'= ?,
+            querry = f"""UPDATE '{name_db}' SET '01' = ?, '02' = ?, '03'= ?, '04'= ?, '05'= ?, '06'= ?, '07' = ?, '08'= ?,
              '09'= ?, '10'= ?, '11'= ?, '12'= ?, '13'= ?, '14'= ?, '15'= ?, '16'= ?, '17'= ?, '18'= ?, '19'= ?, '20'= ?,
-              '21'= ?, '22'= ?, '23'= ?, '24'= ?, '25'= ?, '26'= ?, '27'= ?, '28'= ?, '29'= ?, '30'= ?, '31'= ? where name = ?"""
-            cursor.execute(querry, res[1])
+              '21'= ?, '22'= ?, '23'= ?, '24'= ?, '25'= ?, '26'= ?, '27'= ?, '28'= ?, '29'= ?, '30'= ?, '31'= ? where name = '{name}'"""
+            cursor.execute(querry, val)
             con.commit()
             cursor.close()
         except sqlite3.Error as error:
-            view.Messagebox("Внимание Update", error)
+            view.Messagebox("Внимание ошибка обновления данных", error)
             cursor.close()
 
 
@@ -98,50 +86,37 @@ def Select_work_days_for_one(name, name_db):
         result = cursor.fetchall()
         cursor.close()
     except sqlite3.Error as error:
-        view.Messagebox("Внимание Input", error)
+        view.Messagebox("Внимание ошибка поиска в базе данных", error)
         cursor.close()
     return result
 
 
-
-
-
-
-
-
-
-
-
-# def Input_workdays(name, res):
-#     for key, val in res.items():
-#         value = ";".join(val)
-#         try:
-#             con = sqlite3.connect("database/inbulk.db")
-#             cursor = con.cursor()
-#             querry = f"""INSERT INTO '{name}' (name, data) VALUES (?, ?)"""
-#             param =(key, value)
-#             cursor.execute(querry, param)
-#             con.commit()
-#             cursor.close()
-#         except sqlite3.Error as error:
-#             view.Messagebox("Внимание Input", error)
-#             cursor.close()
-
-
-def Input_workdays_one_worker(name_db, name, res):
-    res=";".join(res)
+def Find_worker(name):
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()
-        querry = f"""INSERT INTO '{name_db}' (name, data) VALUES (?, ?)"""
-        param =(name, res)
-        cursor.execute(querry, param)
-        con.commit()
+        querry = f"""SELECT * FROM workers WHERE name = '{name}'"""
+        cursor.execute(querry)
+        result = cursor.fetchall()
         cursor.close()
     except sqlite3.Error as error:
-        view.Messagebox("Внимание Input", error)
+        view.Messagebox("Внимание ошибка поиска сотрудника", error)
+        cursor.close()
+    return result
+
+
+def Find_db(name_db):
+    try:
+        con = sqlite3.connect("database/inbulk.db")
+        cursor = con.cursor()
+        querry = f"""SELECT * FROM '{name_db}'"""
+        cursor.execute(querry)
+        # result = cursor.fetchall()
         cursor.close()
 
+    except sqlite3.Error as error:
+        cursor.close()
+        return -1
 
 
 def Update_workdays(name, res):
@@ -158,21 +133,6 @@ def Update_workdays(name, res):
         except sqlite3.Error as error:
             view.Messagebox("Внимание Update", error)
             cursor.close()
-
-
-def Update_workdays_one_worker(name_db, name, res):
-    res = ";".join(res)
-    try:
-        con = sqlite3.connect("database/inbulk.db")
-        cursor = con.cursor()
-        querry = f"""UPDATE '{name_db}' SET data = ? where name = ?"""
-        param = (res, name)
-        cursor.execute(querry, param)
-        con.commit()
-        cursor.close()
-    except sqlite3.Error as error:
-        view.Messagebox("Внимание Update", error)
-        cursor.close()
 
 
 def Create_table_workers():
@@ -227,6 +187,7 @@ def Update_salary_workers(name, salary, month):
     except sqlite3.Error as error:
         view.Messagebox("Внимание Update", error)
         cursor.close()
+
 
 def Read_workers():
     con = sqlite3.connect("database/inbulk.db")
@@ -329,7 +290,7 @@ def Select_work_days(add_date):
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()
-        querry = f"""Select * from '{add_date}' """
+        querry = f"""Select * from '{add_date} ' """
         cursor.execute(querry)
         records = cursor.fetchall()
         cursor.close()
@@ -337,5 +298,35 @@ def Select_work_days(add_date):
     except sqlite3.Error as error:
         cursor.close()
         return 1
+
+
+def Select_work_days_join_workers(add_date):
+
+    try:
+        con = sqlite3.connect("database/inbulk.db")
+        cursor = con.cursor()
+        querry = f"""Select * from workers JOIN '{add_date}' WHERE workers.name='{add_date}'.name ORDER by workers.name"""
+        cursor.execute(querry)
+        records = cursor.fetchall()
+        cursor.close()
+        return records
+    except sqlite3.Error as error:
+        cursor.close()
+        return 1
+
+
+def Select_work_days_for_one_worker(add_date, name):
+    try:
+        con = sqlite3.connect("database/inbulk.db")
+        cursor = con.cursor()
+        querry = f"""Select * from '{add_date}' WHERE name = '{name}' """
+        cursor.execute(querry)
+        records = cursor.fetchall()
+        cursor.close()
+        return records
+    except sqlite3.Error as error:
+        cursor.close()
+
+
 
 

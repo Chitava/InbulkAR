@@ -158,24 +158,26 @@ def Start():
                 salary = controller.Create_salary_in_one_month(int(day1), int(day2), date2)
             else:
                 Messagebox("Ошибка",'Выбран не верный диапазон дат')
+
             full_pay = 0
-            # sorted(salary.items())
+            sorted(salary.items())
             for keys, val in salary.items():
-                sal = round((float(val[1]) + float(val[4])), 2)
+
+                # sal = round((float(val[1]) + float(val[4])), 2)
                 # controller.Write_salary_worker(keys, sal)#round(sal-last_month_salary, 2)
                 name_lbl = customtkinter.CTkLabel(frame_2,
                                                  text=keys,
                                                  font=customtkinter.CTkFont(family="Arial", size=24)).pack(pady=5)
                 res_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Отработано {val[0]} дней\n Дней с переработкой {val[2]}\n "
-                                                      f"Часов переработки {val[3]}\n Зарплата {val[1]}\n "
-                                                      f"Зарплата за переработку {val[4]}",
+                                                 text=f"Отработано {val[0]} дней\n"
+                                                      f"Часов переработки {val[1]}\n Зарплата за дни {val[2]}\n "
+                                                      f"Зарплата за переработку {val[3]}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=20)
                 fin_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Итого за месяц: {sal}",
+                                                 text=f"Итого за месяц: {val[4]}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=10)
 
-                full_pay += round((float(val[1]) + float(val[4])), 2)
+                full_pay += val[4]
                 # controller.Write_salary_worker(keys, round(sal, 2))
             itog_lbl = customtkinter.CTkLabel(frame_2,
                                               text=f"Всего к выдаче: {round(full_pay, 2)}",
@@ -242,6 +244,7 @@ def Start():
                 if combobox_var.get() == item[0]:
                     lbl_salary.configure(text=f"Сейчас {item[1]}")
                     lbl_elabor.configure(text=f"Сейчас {item[2]}")
+
 
 
         combobox_var = customtkinter.StringVar(value=worker[0])  # set initial value
@@ -361,6 +364,7 @@ def Start():
 
 
 def Add_workers_form(names):
+    print(names)
     def Save():
         name = names[0]
         wage = entry_wage.get()
