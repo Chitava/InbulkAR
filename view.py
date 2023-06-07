@@ -84,22 +84,37 @@ def Start():
             salary = {}
             for widgets in frame_2.winfo_children():
                 widgets.destroy()
+            (combobox_var.get())
             if date1_for_equels.month < date2_for_equels.month:
                 salary = controller.Create_salary_with_last_month(int(day1), int(day2), date1, date2) #переделать для одного
             elif date1_for_equels.month == date2_for_equels.month:
-                salary = controller.Create_salary_in_one_month_for_one(name, int(day1), int(day2), date2)
+                salary = controller.Create_salary_in_one_month_for_one(combobox_var.get(), int(day1), int(day2), date2)
             else:
                 Messagebox("Ошибка", 'Выбран не верный диапазон дат')
+            worker = 0
+            workdays = 0
+            elab_time = 0
+            salary_work_days = 0
+            salary_elab = 0
+            final_salary = 0
+            for key, val in salary.items():
+                worker = key
+                workdays = val[0]
+                elab_time = val[1]
+                salary_work_days = val[2]
+                salary_elab = val[3]
+                final_salary = salary_work_days+salary_elab-avans
             name_lbl = customtkinter.CTkLabel(frame_2,
-                                                  text=salary[0],
+                                                  text=worker,
                                                   font=customtkinter.CTkFont(family="Arial", size=24)).pack(pady=5)
             res_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Отработано {salary[1]} дней\n Дней с переработкой {salary[3]}\n "
-                                                      f"Часов переработки {round(salary[4], 2)}\n Зарплата {round(salary[2], 2)}\n "
-                                                      f"Зарплата за переработку {round(salary[5], 2)}",
+                                                 text=f"Отработано {workdays} дней\n"
+                                                      f"Часов переработки {elab_time}\n Зарплата {salary_work_days} р.\n "
+                                                      f"Зарплата за переработку {salary_elab} р.",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=20)
             fin_lbl = customtkinter.CTkLabel(frame_2,
-                                                 text=f"Итого за месяц: {round(salary[6], 2)} минус аванс {avans} на руки {round(float(salary[6])-avans, 2)}",
+                                                 text=f"Итого за месяц: {salary_work_days+salary_elab} р. минус аванс "
+                                                      f"{avans} р.\n\n на руки {final_salary} р.",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=10)
 
 
@@ -114,9 +129,9 @@ def Start():
                                             font=customtkinter.CTkFont(family="Arial", size=18, weight="bold"))
         lable_name.pack(pady=20, expand=True)
         combobox_var = customtkinter.StringVar(value=worker[0])  # set initial value
-        combobox = customtkinter.CTkComboBox(master=frame_2, width=300,
+        combobox_worker = customtkinter.CTkComboBox(master=frame_2, width=300,
                                              values=worker, variable=combobox_var)
-        combobox.pack(padx=20, pady=10)
+        combobox_worker.pack(padx=20, pady=10)
 
 
         lable_date = customtkinter.CTkLabel(frame_2, text="Выберете диапазон дат для расчета",
@@ -245,8 +260,6 @@ def Start():
                     lbl_salary.configure(text=f"Сейчас {item[1]}")
                     lbl_elabor.configure(text=f"Сейчас {item[2]}")
 
-
-
         combobox_var = customtkinter.StringVar(value=worker[0])  # set initial value
         combobox = customtkinter.CTkComboBox(master=frame_2, width=300,
                                              values=worker, variable=combobox_var, command=Combobox_act)
@@ -364,7 +377,7 @@ def Start():
 
 
 def Add_workers_form(names):
-    print(names)
+
     def Save():
         name = names[0]
         wage = entry_wage.get()

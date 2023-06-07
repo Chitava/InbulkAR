@@ -197,6 +197,14 @@ def Read_workers():
     cursor.close()
     return result
 
+def Read_workers_only():
+    con = sqlite3.connect("database/inbulk.db")
+    cursor = con.cursor()
+    cursor.execute("""select name from workers""")
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
 
 def Read_worker(name):
     con = sqlite3.connect("database/inbulk.db")
@@ -315,11 +323,12 @@ def Select_work_days_join_workers(add_date):
         return 1
 
 
-def Select_work_days_for_one_worker(add_date, name):
+def Select_work_days_for_one_worker(name, date):
+
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()
-        querry = f"""Select * from '{add_date}' WHERE name = '{name}' """
+        querry = f"""Select * from workers JOIN '{date}' ON workers.name='{date}'.name WHERE workers.name = '{name}'"""
         cursor.execute(querry)
         records = cursor.fetchall()
         cursor.close()
