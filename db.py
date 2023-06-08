@@ -324,7 +324,6 @@ def Select_work_days_join_workers(add_date):
 
 
 def Select_work_days_for_one_worker(name, date):
-
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()

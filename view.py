@@ -86,7 +86,7 @@ def Start():
                 widgets.destroy()
             (combobox_var.get())
             if date1_for_equels.month < date2_for_equels.month:
-                salary = controller.Create_salary_with_last_month(int(day1), int(day2), date1, date2) #переделать для одного
+                salary = controller.Create_salary_in_two_month_for_one(name, str(day1), str(day2), date1, date2)
             elif date1_for_equels.month == date2_for_equels.month:
                 salary = controller.Create_salary_in_one_month_for_one(combobox_var.get(), int(day1), int(day2), date2)
             else:
@@ -370,7 +370,7 @@ def Start():
                                           hover_color=("gray70", "gray30"),
                                           image=exit_image, anchor="w", command=sys.exit)
     exit_button.grid(row=8, column=0, sticky="ew")
-    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.97',
+    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.9701',
                                       font=customtkinter.CTkFont(size=12))
     label_tm.pack(side='right')
     forms_with_date.mainloop()

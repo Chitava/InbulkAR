@@ -65,6 +65,8 @@ def Create_salary_in_one_month(date1, date2, month):
         salary_all[name] = result
     return salary_all
 
+print(Create_salary_in_one_month('01', '01', '06 2023'))
+
 
 
 
