@@ -168,7 +168,7 @@ def Start():
             for widgets in frame_2.winfo_children():
                 widgets.destroy()
             if date1_for_equels.month < date2_for_equels.month:
-                salary = controller.Create_salary_with_last_month(int(day1), int(day2), date1, date2)
+                salary = controller.Create_salary_in_two_month_for_all(int(day1), int(day2), date1, date2)
             elif date1_for_equels.month == date2_for_equels.month:
                 salary = controller.Create_salary_in_one_month(int(day1), int(day2), date2)
             else:
@@ -185,7 +185,7 @@ def Start():
                                                  font=customtkinter.CTkFont(family="Arial", size=24)).pack(pady=5)
                 res_lbl = customtkinter.CTkLabel(frame_2,
                                                  text=f"Отработано {val[0]} дней\n"
-                                                      f"Часов переработки {val[1]}\n Зарплата за дни {val[2]}\n "
+                                                      f"Часов переработки {(val[1])}\n Зарплата за дни {val[2]}\n "
                                                       f"Зарплата за переработку {val[3]}",
                                                  font=customtkinter.CTkFont(family="Arial", size=16)).pack(pady=20)
                 fin_lbl = customtkinter.CTkLabel(frame_2,
