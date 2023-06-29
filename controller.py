@@ -78,11 +78,13 @@ def Insert_db_data():
     if (db.Find_db(view.db_date) == -1):
         db.Create_new_table_work_day(view.db_date)
     for key, val in ar.items():
+        print(db.Select_work_days_for_one_worker(view.db_date, key))
         if (db.Select_work_days_for_one_worker(view.db_date, key) == None or len(db.Select_work_days_for_one_worker
                                                                                      (view.db_date, key)) == 0):
             db.Input_new_workdays(view.db_date, key, val)
         else:
             db.Update_new_workdays(view.db_date, key, val)
+    view.Messagebox("Запись в базу данных", f"Новые данные за {view.db_date} внесены успешно")
 
 
 def Create_salary_in_one_month(date1, date2, month):
@@ -117,13 +119,13 @@ def Create_salary_in_one_month(date1, date2, month):
                     elab_time = curent_time - work_time
                     all_elab_time += elab_time
                     work_day += 1
-        fin_elab_time = datetime.time((all_elab_time.day - 1) * 24 + all_elab_time.hour, all_elab_time.minute)
-        month_salary = salary + (float(f"{fin_elab_time.hour}.{fin_elab_time.minute}") * elab)
-        Write_salary_worker(item[0], month_salary, month)
+        temp_elab_time = (all_elab_time.day - 1) * 24
+        month_salary = salary + (float(f"{temp_elab_time + all_elab_time.hour}.{all_elab_time.minute}") * elab)
         result.append(work_day)  # Кол-во отработаных дней
-        result.append(f"{fin_elab_time.hour},{fin_elab_time.minute}")  # Сумма часов переработки
+        result.append(f"{temp_elab_time + all_elab_time.hour},{all_elab_time.minute}")  # Сумма часов переработки
         result.append(round(salary, 2))  # Зарплата за отработанные дни
-        result.append(float(f"{fin_elab_time.hour}.{fin_elab_time.minute}") * elab)  # Зарплата за переработку
+        result.append(
+            float(f"{temp_elab_time + all_elab_time.hour}.{all_elab_time.minute}") * elab)  # Зарплата за переработку
         result.append(round(month_salary, 2))  # Зарплата за месяц
         salary_all[name] = result
     return salary_all
@@ -300,6 +302,7 @@ def Print_all(data):
 
 
 def Save_to_excel(salarys, month):
+
     book = xlsxwriter.Workbook(f"Зарплата за {month}.xlsx")
     sheet = book.add_worksheet("Зарплата")
     row = 0
@@ -317,14 +320,13 @@ def Save_to_excel(salarys, month):
         values.append(row)
         values.append(keys)
         values.append(val[0])
-        values.append(round(val[1], 2))
+        values.append(val[1])
         values.append(val[2])
         values.append(val[3])
         values.append(0)
         values.append(val[4])
         values.append((f'=H{row + 1}-G{row + 1}'))
         result.append(values)
-
         row+=1
     row = 1
     for item in result:
@@ -368,13 +370,13 @@ def Create_salary_in_one_month_for_one(name, date1, date2, month):
                     elab_time = curent_time - work_time
                     all_elab_time += elab_time
                     work_day += 1
-        fin_elab_time = datetime.time((all_elab_time.day - 1) * 24 + all_elab_time.hour, all_elab_time.minute)
-        month_salary = salary + (float(f"{fin_elab_time.hour}.{fin_elab_time.minute}") * elab)
-        Write_salary_worker(item[0], month_salary, month)
+        temp_elab_time = (all_elab_time.day - 1) * 24
+        month_salary = salary + (float(f"{temp_elab_time + all_elab_time.hour}.{all_elab_time.minute}") * elab)
         result.append(work_day)  # Кол-во отработаных дней
-        result.append(f"{fin_elab_time.hour},{fin_elab_time.minute}")  # Сумма часов переработки
+        result.append(f"{temp_elab_time + all_elab_time.hour},{all_elab_time.minute}")  # Сумма часов переработки
         result.append(round(salary, 2))  # Зарплата за отработанные дни
-        result.append(float(f"{fin_elab_time.hour}.{fin_elab_time.minute}") * elab)  # Зарплата за переработку
+        result.append(
+            float(f"{temp_elab_time + all_elab_time.hour}.{all_elab_time.minute}") * elab)  # Зарплата за переработку
         result.append(round(month_salary, 2))  # Зарплата за месяц
         salary_all[name] = result
     return salary_all

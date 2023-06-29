@@ -47,6 +47,7 @@ def Create_new_table_work_day(add_date):
         view.Messagebox("Внимание", error)
 
 def Input_new_workdays(name_db, name, val):
+        print("Add workdays")
         try:
             con = sqlite3.connect("database/inbulk.db")
             cursor = con.cursor()
@@ -63,6 +64,7 @@ def Input_new_workdays(name_db, name, val):
 
 
 def Update_new_workdays(name_db, name, val):
+        print("Update workdays")
         try:
             con = sqlite3.connect("database/inbulk.db")
             cursor = con.cursor()
