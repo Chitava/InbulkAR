@@ -106,23 +106,27 @@ def Create_salary_in_one_month(date1, date2, month):
         elabor_time = datetime.datetime(2000, 1, 1, 0, 0)
         elabor_salary = 0
         all_elab_time = datetime.datetime(2000, 1, 1, 0, 0)
-        wage = item[1]
-        elab = item[2]
-        houre_wage = wage / 8
-        result = []
-        for i in range(3+date1, 4+date2):
-            temp = item[i].split('.')
-            if len(temp) > 1:
-                curent_time = datetime.datetime(2000, 1, 1, int(temp[0]), int(temp[1]))
-                if curent_time.hour < work_time.hour:
-                    day_wage = (float(item[i]) - 1) * houre_wage
-                    salary += day_wage
-                    work_day += 1
-                else:
-                    salary += wage
-                    elab_time = curent_time - work_time
-                    all_elab_time += elab_time
-                    work_day += 1
+        if (item[1] == ""):
+            break
+        else:
+            wage = item[1]
+            elab = item[2]
+
+            houre_wage = int(wage) / 8
+            result = []
+            for i in range(3+date1, 4+date2):
+                temp = item[i].split('.')
+                if len(temp) > 1:
+                    curent_time = datetime.datetime(2000, 1, 1, int(temp[0]), int(temp[1]))
+                    if curent_time.hour < work_time.hour:
+                        day_wage = (float(item[i]) - 1) * houre_wage
+                        salary += day_wage
+                        work_day += 1
+                    else:
+                        salary += wage
+                        elab_time = curent_time - work_time
+                        all_elab_time += elab_time
+                        work_day += 1
         temp_elab_time = (all_elab_time.day - 1) * 24
         month_salary = salary + (float(f"{temp_elab_time + all_elab_time.hour}.{all_elab_time.minute}") * elab)
         result.append(work_day)  # Кол-во отработаных дней

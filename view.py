@@ -416,7 +416,7 @@ def Add_workers_form(names):
 
     def Save():
         name = names[0]
-        if (names[0][len(names[0])-1] is " "):
+        if (names[0][len(names[0])-1] == " "):
             name = name.split()
             name = " ".join(name)
         wage = entry_wage.get()
