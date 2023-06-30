@@ -230,8 +230,44 @@ def Start():
             for i in range(len(db_date)):
                 if db_date[i] == '.':
                     db_date = db_date[i+1:].replace('.', ' ')
-                    break
-
+                    temp = db_date.split()
+                    match temp[0]:
+                        case '01':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - январь {temp[1]}")
+                            break
+                        case '02':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - февраль {temp[1]}")
+                            break
+                        case '03':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - март {temp[1]}")
+                            break
+                        case '04':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - апрель {temp[1]}")
+                            break
+                        case '05':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - май {temp[1]}")
+                            break
+                        case '06':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - июнь {temp[1]}")
+                            break
+                        case '07':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - июль {temp[1]}")
+                            break
+                        case '08':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - август {temp[1]}")
+                            break
+                        case '09':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - сентябрь {temp[1]}")
+                            break
+                        case '10':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - октябрь {temp[1]}")
+                            break
+                        case '11':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - ноябрь {temp[1]}")
+                            break
+                        case '12':
+                            Messagebox("Установка даты базы дынных", f"Рабочая дата - декабрь {temp[1]}")
+                            break
 
 
         for widgets in frame_2.winfo_children():
@@ -370,7 +406,7 @@ def Start():
                                           hover_color=("gray70", "gray30"),
                                           image=exit_image, anchor="w", command=sys.exit)
     exit_button.grid(row=8, column=0, sticky="ew")
-    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.9git push702',
+    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.9703',
                                       font=customtkinter.CTkFont(size=12))
     label_tm.pack(side='right')
     forms_with_date.mainloop()
@@ -380,6 +416,9 @@ def Add_workers_form(names):
 
     def Save():
         name = names[0]
+        if (names[0][len(names[0])-1] is " "):
+            name = name.split()
+            name = " ".join(name)
         wage = entry_wage.get()
         elabor = entry_elaboration.get()
         db.Add_worker(name, wage, elabor)

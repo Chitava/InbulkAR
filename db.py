@@ -47,7 +47,7 @@ def Create_new_table_work_day(add_date):
         view.Messagebox("Внимание", error)
 
 def Input_new_workdays(name_db, name, val):
-        print("Add workdays")
+
         try:
             con = sqlite3.connect("database/inbulk.db")
             cursor = con.cursor()
@@ -64,7 +64,7 @@ def Input_new_workdays(name_db, name, val):
 
 
 def Update_new_workdays(name_db, name, val):
-        print("Update workdays")
+
         try:
             con = sqlite3.connect("database/inbulk.db")
             cursor = con.cursor()
@@ -152,6 +152,7 @@ def Create_table_salarys(month):
 
 
 def Add_salary_worker(name, salary, month):
+
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()
@@ -326,10 +327,13 @@ def Select_work_days_join_workers(add_date):
 
 
 def Select_work_days_for_one_worker(name, date):
+
+
     try:
         con = sqlite3.connect("database/inbulk.db")
         cursor = con.cursor()
-        querry = f"""Select * from workers JOIN '{date}' ON workers.name='{date}'.name WHERE workers.name = '{name}'"""
+        querry = f"""Select * from workers JOIN '{name}' ON workers.name='{name}'.name WHERE workers.name = '{date}'"""
+
         cursor.execute(querry)
         records = cursor.fetchall()
         cursor.close()

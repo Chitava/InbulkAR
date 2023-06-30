@@ -69,7 +69,10 @@ def Insert_db_data():
     ar = Create_db()
     add_workers = []
     db.Create_table_workers()
+
     for key, val in ar.items():
+        key = key.split()
+        key = " ".join(key)
         worker = db.Find_worker(key)
         if len(worker) == 0:
             add_workers.append(key)
@@ -78,8 +81,9 @@ def Insert_db_data():
     if (db.Find_db(view.db_date) == -1):
         db.Create_new_table_work_day(view.db_date)
     for key, val in ar.items():
-        print(db.Select_work_days_for_one_worker(view.db_date, key))
-        if (db.Select_work_days_for_one_worker(view.db_date, key) == None or len(db.Select_work_days_for_one_worker
+        key = key.split()
+        key = " ".join(key)
+        if (db.Select_work_days_for_one_worker(view.db_date, key) is None or len(db.Select_work_days_for_one_worker
                                                                                      (view.db_date, key)) == 0):
             db.Input_new_workdays(view.db_date, key, val)
         else:

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ParsecAR.iml" filepath="$PROJECT_DIR$/.idea/ParsecAR.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/InbulkAR.iml" filepath="$PROJECT_DIR$/.idea/InbulkAR.iml" />
     </modules>
   </component>
 </project>
