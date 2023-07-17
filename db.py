@@ -342,5 +342,17 @@ def Select_work_days_for_one_worker(name, date):
         cursor.close()
 
 
+def Del_table (name):
+    try:
+        con = sqlite3.connect("database/inbulk.db")
+        cursor = con.cursor()
+        querry = f"""DROP TABLE IF EXISTS '{name}'"""
+        cursor.execute(querry)
+        cursor.close()
+    except sqlite3.Error as error:
+        cursor.close()
+
+
+
 
 

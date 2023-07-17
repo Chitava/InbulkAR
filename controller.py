@@ -25,6 +25,7 @@ def Set_date():
     return 0
 
 def Create_db():
+    db.Del_table(view.db_date)
     file = fd.askopenfilename()
     wb = load_workbook(file)
     sheet = wb.worksheets[0]

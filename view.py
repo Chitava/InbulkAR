@@ -406,7 +406,7 @@ def Start():
                                           hover_color=("gray70", "gray30"),
                                           image=exit_image, anchor="w", command=sys.exit)
     exit_button.grid(row=8, column=0, sticky="ew")
-    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.9703',
+    label_tm = customtkinter.CTkLabel(frame_3, text='ver. 1.9704',
                                       font=customtkinter.CTkFont(size=12))
     label_tm.pack(side='right')
     forms_with_date.mainloop()
