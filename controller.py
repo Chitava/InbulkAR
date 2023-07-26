@@ -48,10 +48,28 @@ def Create_db():
                 result.append(list(temp))
         temp.clear()
     for item in result:
+        for val in item:
+            try:
+                all_time = val.split(",")
+                if float(all_time[0]) > float(all_time[1]):
+                    time1 = all_time[0].split(".")
+                    time2 = all_time[1].split(".")
+                    a = datetime.datetime(2000, 1, 1, int(time1[0]), int(time1[1]))
+                    b = datetime.datetime(2000, 1, 1, int(time2[0]), int(time2[1]))
+                    diff = str(b - a)
+                    time = (diff[8:13]).replace(":", ".")
+                    val = val.split(",")
+                    val.pop(2)
+                    val.append(time)
+                    val = ",".join(val)
+                    item.pop(1)
+                    item = item.append(val)
+            except:
+                continue
+    for item in result:
         item[0] = item[0].replace(',', ' ')
         for i in range(1, len(item)):
             item[i] = (item[i].split(',')).pop(2).replace('--', '0')
-
         key = item[0]
         item.pop(0)
         for i in range(len(item)):
@@ -66,11 +84,12 @@ def Create_db():
     return ar
 
 
+
+
 def Insert_db_data():
     ar = Create_db()
     add_workers = []
     db.Create_table_workers()
-
     for key, val in ar.items():
         key = key.split()
         key = " ".join(key)
@@ -416,5 +435,3 @@ def Create_salary_in_two_month_for_all(day1, day2, first_month, second_month):
                     sum_sallary_now[key_first] = sum_sallary
                 break
     return sum_sallary_now
-
-
